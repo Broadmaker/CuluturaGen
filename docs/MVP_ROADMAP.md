@@ -54,9 +54,15 @@
   warnings, history
 - [x] typecheck + build + smoke-mvp5.mjs 17/17 (mvp1–4 still 9/9, 24/24, 18/18, 18/18)
 
-## MVP 6 — Evaluation (md/07)
-- evaluations, evaluation_findings (INFO→CRITICAL), evidence hierarchy,
-  review workflow; no single "authenticity score"
+## MVP 6 — Evaluation ✅ built + verified (md/07)
+- [x] EvaluationService: 6 domains (cultural/requirements/body/cost/material/
+  evidence) with severity-graded findings; transparent keyword-coverage
+  heuristic with matched/missing evidence; no single score, only counts
+- [x] Snapshots immutable (new row per run) + per-finding explanation records
+  (what/why/source/constraint); review API (resolve/approve/revision)
+- [x] Human gates: approval blocked on unresolved CRITICAL, AI can never
+  approve; studio evaluation section + evaluations index
+- [x] typecheck + build + smoke-mvp6.mjs 21/21 (mvp1–5 still all green)
 
 ## MVP 7 — Design Studio (md/08 §36)
 - 3-panel: Context | Canvas | Analysis (cost + evaluation + explainability),

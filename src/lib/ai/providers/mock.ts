@@ -13,10 +13,20 @@ export class MockProvider implements DesignProvider {
   async generateSpec(ctx: BuiltContext, c: Constraints): Promise<SpecResult> {
     const approved = ctx.cultural.approved;
     const textile = approved.find((e) => e.category === "TEXTILE");
-    const motifs = approved.filter((e) => e.category === "MOTIF").slice(0, 3);
-    const used = [textile, ...motifs].filter(
-      (e): e is NonNullable<typeof e> => !!e,
+
+    // Use the whole approved basket (guardrails already partitioned out the
+    // must-avoid elements into ctx.cultural.restricted).
+
+    // Explicit designer overrides: if the revision instruction names a
+    // must-avoid element, include it flagged for human approval. This models
+    // a designer consciously overriding a guardrail — evaluation must then
+    // fire CRITICAL until approval. Guardrails still exclude the rest.
+    const instructionLower = (ctx.instruction ?? "").toLowerCase();
+    const overrides = ctx.cultural.restricted.filter((e) =>
+      instructionLower.includes(e.name.toLowerCase()),
     );
+    const overriddenIds = new Set(overrides.map((e) => e.elementId));
+    const used = [...approved, ...overrides];
 
     const spec: DesignSpec = designSpecSchema.parse({
       designName: `${ctx.project.name} — Concept ${ctx.brief?.occasion ?? "Study"}`,
@@ -35,7 +45,9 @@ export class MockProvider implements DesignProvider {
       ],
       culturalElements: used.map((e) => ({
         elementId: e.elementId,
-        usage: `Basket role ${e.basketRole}${e.basketNotes ? `: ${e.basketNotes}` : ""}`,
+        usage: overriddenIds.has(e.elementId)
+          ? "Explicit designer override of a restricted element — requires human approval."
+          : `Basket role ${e.basketRole}${e.basketNotes ? `: ${e.basketNotes}` : ""}`,
       })),
       textiles: textile ? [textile.name] : [],
       colors: [{ name: "Earth tones", hex: "" }],
@@ -60,7 +72,9 @@ export class MockProvider implements DesignProvider {
           (ctx.instruction ? `Revision instruction applied: ${ctx.instruction}` : "Initial concept."),
         elementReasons: used.map((e) => ({
           elementId: e.elementId,
-          reason: `Selected from project basket (role ${e.basketRole}).`,
+          reason: overriddenIds.has(e.elementId)
+            ? "Designer explicitly overrode the restriction in the revision instruction."
+            : `Selected from project basket (role ${e.basketRole}).`,
           source: e.sources[0] ?? "NO_SOURCE — human review required",
         })),
       },
