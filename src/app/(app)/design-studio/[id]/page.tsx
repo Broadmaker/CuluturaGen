@@ -5,6 +5,7 @@ import { db } from "@/lib/db/client";
 import { aiJobs, designCulturalElements, designVersions, designs } from "@/lib/db/schema";
 import ValidationBadge from "@/components/culture/ValidationBadge";
 import RegenerateForm from "@/components/design/RegenerateForm";
+import CostPanel from "@/components/cost/CostPanel";
 import type { DesignSpec } from "@/lib/ai/spec-schema";
 
 // md/08 §36–37 three-panel studio: Context | Canvas | Analysis.
@@ -217,6 +218,14 @@ export default async function DesignStudioPage({
           )}
         </aside>
       </div>
+
+      <section className="mt-4 rounded border bg-white p-4">
+        <h2 className="font-semibold">COST ESTIMATE — V{version.versionNumber}</h2>
+        <p className="text-xs text-neutral-500">
+          Deterministic engine only — the AI suggests materials, the engine does the math (md/06 §2).
+        </p>
+        <CostPanel versionId={version.id} designId={design.id} />
+      </section>
     </main>
   );
 }

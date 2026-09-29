@@ -42,9 +42,17 @@
   regenerate-with-instruction, version history, provenance labels
 - [x] typecheck + build + smoke-mvp4.mjs 18/18 (mvp1/2/3 still 9/9, 24/24, 18/18)
 
-## MVP 5 — Cost Engine (deterministic, md/06)
-- materials, material_prices (history, never overwrite), cost_estimates,
-  cost_items + snapshots; AI suggests, engine calculates
+## MVP 5 — Cost Engine ✅ built + verified (deterministic, md/06)
+- [x] Materials library (search/filter/detail) + append-only price history
+  (new rows, never overwrite); 4 SAMPLE materials incl. price history + priceless
+- [x] CostService: AI suggests, engine calculates — material resolution from
+  latest prices, labor/decoration/other lines, contingency, budget variance +
+  status thresholds (env-configurable, never hard-coded)
+- [x] Missing prices → INCOMPLETE (never invented); expired → REVIEW_REQUIRED;
+  immutable snapshots + per-design cost history
+- [x] Studio CostPanel: link materials, ad-hoc lines, breakdown, budget bar,
+  warnings, history
+- [x] typecheck + build + smoke-mvp5.mjs 17/17 (mvp1–4 still 9/9, 24/24, 18/18, 18/18)
 
 ## MVP 6 — Evaluation (md/07)
 - evaluations, evaluation_findings (INFO→CRITICAL), evidence hierarchy,
