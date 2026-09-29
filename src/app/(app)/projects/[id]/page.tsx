@@ -8,16 +8,16 @@ import ValidationBadge from "@/components/culture/ValidationBadge";
 
 // md/08 §15 project overview. Research basket is live (MVP 2); other tabs
 // unlock with their MVPs.
-const TABS = [
-  "Overview",
-  "Research ✓",
-  "Requirements (MVP 3)",
-  "Body (MVP 3)",
-  "Materials (MVP 5)",
-  "Designs (MVP 4)",
-  "Evaluation (MVP 6)",
-  "Reports",
-  "History",
+const TABS: { label: string; href: string | null }[] = [
+  { label: "Overview", href: null },
+  { label: "Research ✓", href: "#research" },
+  { label: "Requirements ✓", href: "requirements" },
+  { label: "Body ✓", href: "body" },
+  { label: "Materials (MVP 5)", href: null },
+  { label: "Designs (MVP 4)", href: null },
+  { label: "Evaluation (MVP 6)", href: null },
+  { label: "Reports", href: null },
+  { label: "History", href: null },
 ];
 
 export default async function ProjectDetailPage({
@@ -55,14 +55,24 @@ export default async function ProjectDetailPage({
 
       <nav className="mt-4 flex gap-1 overflow-x-auto border-b text-sm" aria-label="Project">
         {TABS.map((t, i) => (
-          <span
-            key={t}
-            className={`whitespace-nowrap px-3 py-2 ${
-              i === 0 ? "border-b-2 border-black font-medium" : "text-neutral-400"
-            }`}
-          >
-            {t}
-          </span>
+          t.href ? (
+            <a
+              key={t.label}
+              href={t.href.startsWith("#") ? t.href : `/projects/${project.id}/${t.href}`}
+              className="whitespace-nowrap px-3 py-2 text-neutral-600 underline"
+            >
+              {t.label}
+            </a>
+          ) : (
+            <span
+              key={t.label}
+              className={`whitespace-nowrap px-3 py-2 ${
+                i === 0 ? "border-b-2 border-black font-medium" : "text-neutral-400"
+              }`}
+            >
+              {t.label}
+            </span>
+          )
         ))}
       </nav>
 
@@ -114,7 +124,7 @@ export default async function ProjectDetailPage({
           )}
         </section>
 
-        <section className="rounded border bg-white p-4 md:col-span-2">
+        <section id="research" className="rounded border bg-white p-4 md:col-span-2">
           <h2 className="font-semibold">
             Research basket ({project.basket.length})
           </h2>

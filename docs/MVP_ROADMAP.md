@@ -19,9 +19,15 @@
 - [x] SAMPLE-prefixed demo data (thesis-safe placeholders, not real knowledge)
 - [x] typecheck + build + smoke-mvp2.mjs 24/24 (smoke-mvp1.mjs still 9/9)
 
-## MVP 3 — Design Brief
-- clients, body_profiles (MANUAL first; CV estimates labeled ESTIMATED),
-  design_briefs, design_requirements (MANDATORY/PREFERRED/OPTIONAL/RESTRICTED)
+## MVP 3 — Design Brief ✅ built + verified
+- [x] clients (minimal info only, md/02 §33), body_profiles (MANUAL only;
+  every POST is a new snapshot, PATCH corrects latest, designer-verified flag;
+  CV/ESTIMATED deferred per md/01 §15)
+- [x] design_briefs (structured fields + budget) + design_requirements with
+  MANDATORY/PREFERRED/OPTIONAL/RESTRICTED priorities and 9 categories;
+  deactivation preserves history for MVP 6
+- [x] Requirements + Body pages wired into project tabs
+- [x] typecheck + build + smoke-mvp3.mjs 18/18 (mvp1 9/9, mvp2 24/24 still green)
 
 ## MVP 4 — AI Generation
 - AiContext store, AiJob queue (QUEUED→PROCESSING→COMPLETED/FAILED),
