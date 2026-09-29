@@ -8,6 +8,7 @@ import RegenerateForm from "@/components/design/RegenerateForm";
 import CostPanel from "@/components/cost/CostPanel";
 import EvaluationPanel from "@/components/evaluation/EvaluationPanel";
 import FinalizeButton from "@/components/design/FinalizeButton";
+import GenerateReportButton from "@/components/reports/GenerateReportButton";
 import type { DesignSpec } from "@/lib/ai/spec-schema";
 
 // md/08 §36–37 three-panel studio: Context | Canvas | Analysis.
@@ -245,6 +246,12 @@ export default async function DesignStudioPage({
         </p>
         <div className="mt-2">
           <EvaluationPanel designId={design.id} versionId={version.id} versionNumber={version.versionNumber} />
+        </div>
+      </section>
+      <section className="mt-4 rounded border bg-white p-4">
+        <h2 className="font-semibold">REPORTS</h2>
+        <div className="mt-2">
+          <GenerateReportButton projectId={design.projectId} designId={design.id} />
         </div>
       </section>
     </main>

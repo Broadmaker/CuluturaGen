@@ -72,6 +72,15 @@
 - [x] Compare + finalize shared via DesignService; studio header links both
 - [x] typecheck + build + smoke-mvp7.mjs 13/13 (mvp1–6 still all green)
 
+## Reports — Design Dossier ✅ built + verified (md/01 §35)
+- [x] ReportService: assembles FINAL/DESIGN/CULTURAL/COST/EVALUATION dossiers
+  from preserved snapshots (briefs, basket + sources, specs, images, costs,
+  evaluations, reviews, audit history) and renders PDFs server-side
+  (pdfkit + svg-to-pdfkit, pure JS, no native binaries)
+- [x] Reports stored as files + reports/file_assets rows; per-project API,
+  library page, studio + project entry points
+- [x] typecheck + build + smoke-reports.mjs 12/12 (mvp1–7 still all green)
+
 ## Deferred (md/01 §51)
 Computer vision (after core works), 3D/AR, pattern generation, marketplace,
 supplier integration, mobile app.

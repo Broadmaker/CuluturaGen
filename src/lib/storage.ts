@@ -28,6 +28,18 @@ export async function saveGeneratedImage(
   return { relativePath, url: `/api/files/${relativePath}` };
 }
 
+export async function saveReportFile(
+  projectId: string,
+  fileName: string,
+  bytes: Buffer,
+): Promise<{ relativePath: string; url: string }> {
+  const dir = ["projects", "reports", projectId];
+  await fs.mkdir(safeJoin(...dir), { recursive: true });
+  await fs.writeFile(safeJoin(...dir, fileName), bytes);
+  const relativePath = [...dir, fileName].join("/");
+  return { relativePath, url: `/api/files/${relativePath}` };
+}
+
 export async function readStorageFile(relativePath: string): Promise<{ bytes: Buffer; ext: string } | null> {
   try {
     const bytes = await fs.readFile(safeJoin(relativePath));

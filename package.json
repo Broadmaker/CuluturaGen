@@ -20,13 +20,16 @@
   "dependencies": {
     "drizzle-orm": "^0.45.3",
     "next": "14.2.5",
+    "pdfkit": "^0.20.2",
     "pg": "^8.23.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "svg-to-pdfkit": "^0.1.8",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
+    "@types/pdfkit": "^0.17.6",
     "@types/pg": "^8.23.1",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

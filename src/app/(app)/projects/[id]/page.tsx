@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { designs, projects } from "@/lib/db/schema";
+import { designs, projects, reports as reportsTable } from "@/lib/db/schema";
 import StatusChanger from "@/components/projects/StatusChanger";
 import RemoveFromBasket from "@/components/projects/RemoveFromBasket";
 import GenerateButton from "@/components/design/GenerateButton";
+import GenerateReportButton from "@/components/reports/GenerateReportButton";
 import ValidationBadge from "@/components/culture/ValidationBadge";
 
 // md/08 §15 project overview. Research basket is live (MVP 2); other tabs
@@ -32,6 +33,7 @@ export default async function ProjectDetailPage({
       briefs: true,
       designs: { orderBy: desc(designs.updatedAt) },
       basket: { with: { element: true } },
+      reports: { orderBy: desc(reportsTable.generatedAt), limit: 10 },
     },
   });
   if (!project) notFound();
@@ -157,6 +159,27 @@ export default async function ProjectDetailPage({
               ))}
             </ul>
           )}
+        </section>
+
+        <section className="rounded border bg-white p-4 md:col-span-2">
+          <h2 className="font-semibold">Reports ({project.reports.length})</h2>
+          {project.reports.length > 0 && (
+            <ul className="mt-2 space-y-1 text-sm">
+              {project.reports.map((r) => (
+                <li key={r.id}>
+                  {r.reportType?.replace(/_/g, " ")} — {r.generatedAt?.toLocaleString()}{" "}
+                  {r.fileUrl && (
+                    <a href={r.fileUrl} className="underline" download>
+                      Download PDF
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="mt-2">
+            <GenerateReportButton projectId={project.id} />
+          </div>
         </section>
       </div>
     </main>
