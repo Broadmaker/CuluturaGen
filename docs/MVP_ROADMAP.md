@@ -64,9 +64,13 @@
   approve; studio evaluation section + evaluations index
 - [x] typecheck + build + smoke-mvp6.mjs 21/21 (mvp1–5 still all green)
 
-## MVP 7 — Design Studio (md/08 §36)
-- 3-panel: Context | Canvas | Analysis (cost + evaluation + explainability),
-  regenerate/refine/compare/version history, human review + approval gate
+## MVP 7 — Design Studio ✅ built + verified (md/08 §36)
+- [x] 3-panel workspace was already live; added the two gaps: version compare
+  (side-by-side visual/spec/culture/cost/evaluation, no "best" verdict) and
+  the deliberate finalize action (md/08 §64–65: confirmation, CRITICAL gate,
+  audit, idempotent, sets design FINAL)
+- [x] Compare + finalize shared via DesignService; studio header links both
+- [x] typecheck + build + smoke-mvp7.mjs 13/13 (mvp1–6 still all green)
 
 ## Deferred (md/01 §51)
 Computer vision (after core works), 3D/AR, pattern generation, marketplace,

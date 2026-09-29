@@ -7,6 +7,7 @@ import ValidationBadge from "@/components/culture/ValidationBadge";
 import RegenerateForm from "@/components/design/RegenerateForm";
 import CostPanel from "@/components/cost/CostPanel";
 import EvaluationPanel from "@/components/evaluation/EvaluationPanel";
+import FinalizeButton from "@/components/design/FinalizeButton";
 import type { DesignSpec } from "@/lib/ai/spec-schema";
 
 // md/08 §36–37 three-panel studio: Context | Canvas | Analysis.
@@ -55,6 +56,15 @@ export default async function DesignStudioPage({
         <h1 className="text-2xl font-bold">{design.name ?? design.designCode}</h1>
         <span className="rounded border bg-white px-2 py-0.5 text-xs">{design.status}</span>
         <span className="rounded border bg-white px-2 py-0.5 text-xs">DESIGN V{version.versionNumber}</span>
+        {versions.length > 1 && (
+          <Link
+            href={`/design-studio/${design.id}/compare?a=${Math.min(...versions.map((v) => v.versionNumber))}&b=${Math.max(...versions.map((v) => v.versionNumber))}`}
+            className="rounded border bg-white px-2 py-0.5 text-xs underline"
+          >
+            Compare versions
+          </Link>
+        )}
+        <FinalizeButton designId={design.id} designStatus={design.status} />
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[220px_1fr_280px]">
