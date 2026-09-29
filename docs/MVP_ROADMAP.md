@@ -29,10 +29,18 @@
 - [x] Requirements + Body pages wired into project tabs
 - [x] typecheck + build + smoke-mvp3.mjs 18/18 (mvp1 9/9, mvp2 24/24 still green)
 
-## MVP 4 — AI Generation
-- AiContext store, AiJob queue (QUEUED→PROCESSING→COMPLETED/FAILED),
-  context-builder → constraint-builder → LLM (spec) → image model;
-  design_versions lineage, immutable evaluated versions
+## MVP 4 — AI Generation ✅ built + verified (mock-first)
+- [x] Real context builder (brief + VERIFIED-first basket + body + budget) and
+  constraint builder with md/04 §63 guardrails; exact context persisted
+- [x] Provider interface: deterministic MockProvider live ($0); OpenAIProvider
+  (gpt-4o-mini Structured Outputs + gpt-image-1) implemented, dormant behind
+  AI_PROVIDER=openai — flip live with key only, no code change
+- [x] AIService runner: two-stage spec→image, ai_jobs QUEUED→PROCESSING→
+  COMPLETED/FAILED with usage + raw I/O, version lineage V1→Vn, spec
+  survives image failure, local file serving via /api/files
+- [x] Studio: 3-panel (context/canvas/analysis), generate confirmation,
+  regenerate-with-instruction, version history, provenance labels
+- [x] typecheck + build + smoke-mvp4.mjs 18/18 (mvp1/2/3 still 9/9, 24/24, 18/18)
 
 ## MVP 5 — Cost Engine (deterministic, md/06)
 - materials, material_prices (history, never overwrite), cost_estimates,

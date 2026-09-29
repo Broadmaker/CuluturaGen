@@ -4,6 +4,7 @@ import { db } from "@/lib/db/client";
 import { designs, projects } from "@/lib/db/schema";
 import StatusChanger from "@/components/projects/StatusChanger";
 import RemoveFromBasket from "@/components/projects/RemoveFromBasket";
+import GenerateButton from "@/components/design/GenerateButton";
 import ValidationBadge from "@/components/culture/ValidationBadge";
 
 // md/08 §15 project overview. Research basket is live (MVP 2); other tabs
@@ -105,16 +106,22 @@ export default async function ProjectDetailPage({
         </section>
 
         <section className="rounded border bg-white p-4">
-          <h2 className="font-semibold">Designs</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold">Designs</h2>
+            <GenerateButton projectId={project.id} />
+          </div>
           {project.designs.length === 0 ? (
             <p className="mt-2 text-sm text-neutral-500">
-              No designs yet — generation arrives in MVP 4.
+              No designs yet — generate the first concept from the brief,
+              basket, and body profile.
             </p>
           ) : (
             <ul className="mt-2 space-y-2 text-sm">
               {project.designs.map((d) => (
                 <li key={d.id} className="flex justify-between border-b py-1">
-                  <span>{d.name ?? d.designCode}</span>
+                  <a href={`/design-studio/${d.id}`} className="underline">
+                    {d.name ?? d.designCode}
+                  </a>
                   <span className="text-neutral-500">
                     {d.status} · v{d.currentVersion}
                   </span>
