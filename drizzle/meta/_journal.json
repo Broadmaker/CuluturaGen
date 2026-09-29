@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790651453954,
+      "tag": "0000_cooing_thunderbolt",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790651827364,
+      "tag": "0001_status-not-null",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790652651928,
+      "tag": "0002_mvp2-cultural-links",
+      "breakpoints": true
+    }
+  ]
+}

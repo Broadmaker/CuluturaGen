@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+dist/
+*.tsbuildinfo
+.env
+.env*.local
+*.log
+storage/users/*
+storage/projects/*
+!storage/users/.gitkeep
+!storage/projects/**/.gitkeep

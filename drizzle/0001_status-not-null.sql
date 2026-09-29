@@ -1,0 +1,1 @@
+ALTER TABLE "designs" ALTER COLUMN "status" SET NOT NULL;
