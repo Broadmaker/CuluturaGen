@@ -124,7 +124,9 @@ export default async function DashboardPage() {
             <ul className="mt-2 space-y-2 text-sm">
               {reviewQueue.map((d) => (
                 <li key={d.id} className="rounded border bg-white px-3 py-2">
-                  <span className="font-medium">{d.name ?? d.designCode}</span>
+                  <Link href={`/design-studio/${d.id}`} className="font-medium underline">
+                    {d.name ?? d.designCode}
+                  </Link>
                   <span className="text-neutral-500"> · {d.project.name}</span>
                 </li>
               ))}

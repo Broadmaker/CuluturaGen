@@ -145,8 +145,20 @@ export class EvaluationService {
             where: inArray(culturalElementRelationships.sourceElementId, usedIds),
           })
         : [];
+    // Communities from links plus communities named on restriction rows, so
+    // scoped restrictions can be compared against the brief's culture below.
+    const restrCommIds = Array.from(
+      new Set(
+        used.flatMap((u) =>
+          (u.element.restrictions ?? []).map((r) => r.communityId).filter(Boolean),
+        ) as string[],
+      ),
+    );
     const commIds = Array.from(
-      new Set(linkRows.map((l) => l.communityId).filter(Boolean) as string[]),
+      new Set([
+        ...linkRows.map((l) => l.communityId).filter(Boolean),
+        ...restrCommIds,
+      ] as string[]),
     );
     const commRows =
       commIds.length > 0
@@ -236,6 +248,68 @@ export class EvaluationService {
           recommendation: "Attach a source on the element page, then re-evaluate.",
           relatedCulturalElement: el.id,
         });
+      }
+      // Contextual restrictions (md/04 §22-24, md/07 §18-20). These rows
+      // were loaded but never read — a recorded restriction must never be
+      // silently ignored when its element is used in a design.
+      for (const r of u.element.restrictions ?? []) {
+        const rType = r.restrictionType ?? "UNKNOWN";
+        const rSev = (r.severity ?? "").toUpperCase();
+        const rCulture = r.cultureId ?? (r.communityId ? commCulture.get(r.communityId) : null) ?? null;
+        const scopeMismatch =
+          !!brief?.cultureId && !!rCulture && rCulture !== brief.cultureId;
+        const base = {
+          category: "CULTURAL",
+          title: "",
+          finding: "",
+          evidence: JSON.stringify({
+            rule: "CULTURAL_CONTEXT",
+            elementId: el.id,
+            restrictionType: rType,
+            description: r.description,
+            severity: r.severity ?? null,
+            occasion: brief?.occasion ?? null,
+          }),
+          recommendation: "",
+          relatedCulturalElement: el.id,
+        };
+        if (rSev === "CRITICAL" && !u.approvedByHuman) {
+          culturalSev.push("CRITICAL");
+          findings.push({
+            ...base,
+            severity: "CRITICAL",
+            title: "Critical context restriction applies",
+            finding: `${el.name} carries a CRITICAL ${rType} restriction: ${r.description}`,
+            recommendation: "Remove the element or obtain expert approval, then re-evaluate.",
+          });
+        } else if (scopeMismatch) {
+          culturalSev.push("HIGH");
+          findings.push({
+            ...base,
+            severity: "HIGH",
+            title: "Restriction scoped to another culture",
+            finding: `${el.name} carries a ${rType} restriction scoped outside the project's culture: ${r.description}`,
+            recommendation: "Verify the cross-context use with an expert or replace the element.",
+          });
+        } else if ((rType === "SACRED" || rType === "CEREMONIAL_ONLY") && !u.approvedByHuman) {
+          culturalSev.push("HIGH");
+          findings.push({
+            ...base,
+            severity: "HIGH",
+            title: "Sacred/ceremonial element needs occasion review",
+            finding: `${el.name} is marked ${rType} — confirm the occasion "${brief?.occasion ?? "unspecified"}" is appropriate: ${r.description}`,
+            recommendation: "Confirm occasion fit with a cultural expert or choose another element.",
+          });
+        } else {
+          culturalSev.push("MEDIUM");
+          findings.push({
+            ...base,
+            severity: "MEDIUM",
+            title: "Contextual restriction on record",
+            finding: `${el.name} carries a ${rType} restriction: ${r.description}`,
+            recommendation: "Review the restriction with the designer/expert before approval.",
+          });
+        }
       }
       // Association with the brief's culture.
       if (brief?.cultureId) {

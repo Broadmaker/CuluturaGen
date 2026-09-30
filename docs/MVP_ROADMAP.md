@@ -120,6 +120,19 @@
 - [ ] Deferred to deployment: HTTPS/CORS hardening, DB backups, error
   monitoring (md/10 §153–154 production checklist)
 
+## Spec-compliance pass ✅ (md/02/04/07/08/09 sweep, no AI-provider work)
+- [x] Fixed project-tab URL bug (absolute `/materials`, `/evaluations` were
+  nested into 404s); all 9 workspace tabs resolve; added `#designs`/`#reports`
+  anchors; dashboard Review Queue links to the studio
+- [x] Retired both 501 stubs: `POST /api/cost` and `POST /api/evaluation`
+  are working canonical aliases of the version/design-scoped engines
+- [x] Evaluation now reads `cultural_restrictions` rows (previously loaded
+  but ignored): CRITICAL severity → CRITICAL, cross-culture scope → HIGH,
+  SACRED/CEREMONIAL_ONLY unapproved → HIGH occasion review, else MEDIUM —
+  with brief occasion in evidence (md/04 §22-24, md/07 §18-20)
+- [x] Integration test proves the CULTURAL_CONTEXT finding fires vs real DB
+  (self-cleaning probe rows); suite now 53/53; all 9 smokes still exit 0
+
 ## Deferred (md/01 §51)
 Computer vision (after core works), 3D/AR, pattern generation, marketplace,
 supplier integration, mobile app.

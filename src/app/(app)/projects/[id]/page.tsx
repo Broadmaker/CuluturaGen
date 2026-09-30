@@ -66,7 +66,11 @@ export default async function ProjectDetailPage({
           t.href ? (
             <a
               key={t.label}
-              href={t.href.startsWith("#") ? t.href : `/projects/${project.id}/${t.href}`}
+              href={
+                t.href.startsWith("#") || t.href.startsWith("/")
+                  ? t.href
+                  : `/projects/${project.id}/${t.href}`
+              }
               className="whitespace-nowrap px-3 py-2 text-neutral-600 underline"
             >
               {t.label}
