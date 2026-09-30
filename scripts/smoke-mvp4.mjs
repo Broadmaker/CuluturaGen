@@ -50,6 +50,13 @@ await call("POST", `/api/projects/${pid}/basket`, { culturalElementId: textile.i
 // --- generate ---
 const gen = await call("POST", "/api/designs/generate", { projectId: pid, instruction: "Keep it simple" }, A);
 check("generate 201 + mock provider", gen.status === 201 && gen.json?.data?.provider === "mock", `got ${gen.status}`);
+check(
+  "output validation rides along (no drops on basket IDs)",
+  Array.isArray(gen.json?.data?.validation?.elements) &&
+    (gen.json?.data?.validation?.droppedUnknown ?? null) !== null &&
+    gen.json.data.validation.droppedUnknown.length === 0,
+  JSON.stringify(gen.json?.data?.validation),
+);
 const designId = gen.json?.data?.design?.id;
 const v1 = gen.json?.data?.version;
 const spec = v1?.designSpecification;

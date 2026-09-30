@@ -17,6 +17,7 @@ import {
   buildSpecPrompt,
 } from "@/lib/ai/constraint-engine";
 import { designSpecSchema } from "@/lib/ai/spec-schema";
+import { validateSpecElements } from "@/lib/ai/output-validator";
 import { getProvider } from "@/lib/ai/provider";
 import { DesignService } from "@/server/services/design/DesignService";
 import { saveGeneratedImage } from "@/lib/storage";
@@ -138,10 +139,11 @@ export class AIService {
       input: { aiContextId: aiContext.id, prompt },
     });
     let spec;
+    let usage = { inputTokens: 0, outputTokens: 0 };
     try {
       const result = await provider.generateSpec(ctx, constraints, prompt);
       spec = designSpecSchema.parse(result.spec);
-      await this.finishJob(specJob.id, { spec, usage: result.usage });
+      usage = result.usage;
     } catch (e) {
       await this.failJob(specJob.id, e);
       await db.update(designVersions).set({ status: "FAILED" }).where(eq(designVersions.id, version.id));
@@ -149,6 +151,32 @@ export class AIService {
       await DesignService.setStatus(designId, "FAILED");
       throw e;
     }
+
+    // Business/cultural validation (md/05 §32-39): unknown IDs are dropped
+    // BEFORE the spec is persisted or linked — a blind insert would
+    // FK-violate or launder an invented fact as knowledge. The drop is
+    // recorded on the spec itself so the designer sees what the model
+    // tried to reference.
+    const assessments = await validateSpecElements(spec.culturalElements.map((c) => c.elementId));
+    const unknownIds = assessments.filter((a) => a.verdict === "UNKNOWN").map((a) => a.elementId);
+    if (unknownIds.length > 0) {
+      const dropNote = `Validation dropped ${unknownIds.length} unrecognized cultural reference(s) (${unknownIds.join(", ")}): not in the knowledge base, held for human review instead of linked.`;
+      spec = {
+        ...spec,
+        culturalElements: spec.culturalElements.filter((c) => !unknownIds.includes(c.elementId)),
+        constructionNotes: [...spec.constructionNotes, dropNote],
+        aiExplanation: {
+          ...spec.aiExplanation,
+          summary: `${spec.aiExplanation.summary} [Output validation: ${dropNote}]`,
+        },
+      };
+    }
+    const elementVerdicts = assessments
+      .filter((a) => a.verdict !== "UNKNOWN")
+      .map((a) => ({ elementId: a.elementId, verdict: a.verdict, name: a.record?.name ?? null }));
+
+    // The job record keeps the *validated* spec — what was stored and linked.
+    await this.finishJob(specJob.id, { spec, usage });
 
     await db
       .update(designVersions)
@@ -218,7 +246,7 @@ export class AIService {
       action: "DESIGN_GENERATED",
       entityType: "Design",
       entityId: designId,
-      newValue: { version: versionNumber, provider: provider.name },
+      newValue: { version: versionNumber, provider: provider.name, droppedUnknown: unknownIds },
     });
 
     const [design] = await db.select().from(designs).where(eq(designs.id, designId));
@@ -226,7 +254,12 @@ export class AIService {
       .select()
       .from(designVersions)
       .where(eq(designVersions.id, version.id));
-    return { design, version: freshVersion, provider: provider.name };
+    return {
+      design,
+      version: freshVersion,
+      provider: provider.name,
+      validation: { droppedUnknown: unknownIds, elements: elementVerdicts },
+    };
   }
 
   private static async startJob(opts: {

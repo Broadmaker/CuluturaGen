@@ -164,6 +164,18 @@
   currency mismatch; valid path still calculates); route-level 400s in
   smoke-mvp5; suite 73/73; all 9 smokes exit 0
 
+## AI output validation ✅ (md/05 §32–39, no provider work)
+- [x] `src/lib/ai/output-validator.ts`: pure `classifyElement()` (OK /
+  UNKNOWN / RESTRICTED / DEPRECATED / UNVERIFIED / UNSOURCED) +
+  `assessElements()` (dedupes) + DB-backed `validateSpecElements()`
+- [x] AIService validates every emitted element ID before persisting or
+  linking: unknown IDs are dropped from the spec (never linked — previously
+  a blind insert away from an FK 500 or laundered fact), recorded in
+  construction notes + aiExplanation summary + job output + DESIGN_GENERATED
+  audit + `validation` on the generate response (smoke-mvp4 asserts it)
+- [x] 3 unit + 1 integration tests (verdicts incl. sourced/unsourced/unknown
+  vs real DB); suite 77/77; all 9 smokes exit 0
+
 ## Deferred (md/01 §51)
 Computer vision (after core works), 3D/AR, pattern generation, marketplace,
 supplier integration, mobile app.
