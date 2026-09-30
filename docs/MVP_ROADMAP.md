@@ -81,6 +81,45 @@
   library page, studio + project entry points
 - [x] typecheck + build + smoke-reports.mjs 12/12 (mvp1–7 still all green)
 
+## Phase 18 — Audit & Traceability ✅ built + verified (md/10 §114–117)
+- [x] AuditService: central log() (never throws into callers) + forProject()
+  traceability chain (Project → Designs → Versions → Evaluations/Costs →
+  Reports) + forEntity(); standard §115 action names
+- [x] COST_CALCULATED wired into CostService (the one missing §115 event);
+  existing route-level writes (PROJECT_*, DESIGN_GENERATED, EVALUATION_RUN,
+  DESIGN_ACCEPTED, REPORT_GENERATED, …) left in place
+- [x] GET /api/projects/[id]/audit (auth + 404 guarded) + History section on
+  project page (dead tab fixed)
+- [x] typecheck + build + smoke-audit.mjs (full loop → 5-event chain present,
+  401 without session)
+
+## Phase 20 — Testing ✅ built + verified (md/10 §120–124, md/09 §134–140)
+- [x] vitest (`vitest.config.ts`, `@/` alias, `tests/setup.ts` loads `.env`;
+  `pnpm exec vitest run`): 52 tests across 7 files, all green
+- [x] Unit: project state machine, cost thresholds (pure `resolveBudgetStatus`
+  extracted from CostService with identical semantics) + cost profile env,
+  evaluation rules (coverage heuristic, severity escalation), auth
+  (scrypt round-trip, HMAC session tamper/expiry, zod schemas), rate limits,
+  AI generation (§123: constraint partitioning, guardrail injection,
+  image-prompt boundary, spec schema accept/reject, mock determinism +
+  restricted-override flagging + XML escaping)
+- [x] Integration: AuditService log/forProject/forEntity vs real DB
+  (self-cleaning probe project, skips without DB)
+- [x] E2E: 9 smoke scripts cover the §124 20-step loop, all exit 0
+- [x] Bug found by tests: MockProvider double-escaped SVG entities — fixed
+
+## Phase 19 — Security ✅ core done (md/10 §119, md/09 §113–118)
+- [x] Already present: scrypt passwords, HMAC-signed httpOnly sessions,
+  role-gated routes, server-side-only AI keys, zod validation on mutations
+- [x] Added: env-configurable rate limits (md/09 §116: 30/min auth per IP,
+  10/h generation + 20/h refinement per user) with 429 + Retry-After on
+  login/register/generate/regenerate; in-memory window (Redis noted for
+  multi-instance); new vars documented in `.env.example`
+- [x] N/A by design: no user file-upload endpoints exist (all images/reports
+  are generated server-side), so upload validation has no surface
+- [ ] Deferred to deployment: HTTPS/CORS hardening, DB backups, error
+  monitoring (md/10 §153–154 production checklist)
+
 ## Deferred (md/01 §51)
 Computer vision (after core works), 3D/AR, pattern generation, marketplace,
 supplier integration, mobile app.

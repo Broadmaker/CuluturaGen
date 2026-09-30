@@ -12,3 +12,4 @@ export * from "./ai/AIService";
 export * from "./evaluation/EvaluationService";
 export * from "./evaluation/ExplanationService";
 export * from "./reports/ReportService";
+export * from "./audit/AuditService";

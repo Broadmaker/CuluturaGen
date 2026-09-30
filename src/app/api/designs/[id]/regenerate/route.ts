@@ -4,6 +4,7 @@ import { z } from "zod";
 import { db } from "@/lib/db/client";
 import { designs } from "@/lib/db/schema";
 import { getSessionUser } from "@/lib/auth/session";
+import { checkRateLimit, rateLimitDefaults } from "@/lib/rate-limit";
 import { AIService } from "@/server/services/ai/AIService";
 
 const schema = z.object({ instruction: z.string().max(2000).optional() });
@@ -14,6 +15,19 @@ export async function POST(
 ) {
   const user = await getSessionUser().catch(() => null);
   if (!user) return NextResponse.json({ ok: false }, { status: 401 });
+
+  // md/09 §116: refinement quota (20/hour/user, configurable).
+  const rl = checkRateLimit(
+    `ai-refine:${user.id}`,
+    rateLimitDefaults().aiRefinePerHour,
+    3_600_000,
+  );
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { ok: false, error: "Refinement quota reached. Try again later." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } },
+    );
+  }
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {

@@ -10,6 +10,8 @@ import {
   materialPrices,
 } from "@/lib/db/schema";
 import { costProfile } from "@/lib/cost/constants";
+import { resolveBudgetStatus } from "@/lib/cost/budget";
+import { AuditService } from "@/server/services/audit/AuditService";
 
 export interface AdHocLine {
   description: string;
@@ -158,28 +160,20 @@ export class CostService {
     // Budget from latest brief — resolved via the design's project below.
     const budget = await this.resolveBudget(version.designId);
 
+    // Thresholds live in src/lib/cost/budget.ts (pure, unit-tested).
+    const status = resolveBudgetStatus({
+      estimatedTotal,
+      budget,
+      missingCount: missingPrices.length,
+      expiredCount: expiredPrices.length,
+      nearBudgetPct: profile.nearBudgetPct,
+    });
     let variance: number | null = null;
     let variancePct: number | null = null;
-    let status: string;
-    if (missingPrices.length > 0) {
-      status = "INCOMPLETE";
-    } else if (!budget) {
-      status = expiredPrices.length > 0 ? "REVIEW_REQUIRED" : "UNDER_BUDGET";
-    } else {
+    if (budget) {
       variance = round2(budget - estimatedTotal);
       variancePct = round2(((estimatedTotal - budget) / budget) * 100);
-      const ratio = estimatedTotal / budget;
-      status =
-        ratio < profile.nearBudgetPct / 100
-          ? "UNDER_BUDGET"
-          : ratio < 1
-            ? "NEAR_BUDGET"
-            : Math.abs(ratio - 1) < 1e-9
-              ? "AT_BUDGET"
-              : "OVER_BUDGET";
-      if (expiredPrices.length > 0 && status !== "OVER_BUDGET") status = "REVIEW_REQUIRED";
     }
-    if (expiredPrices.length > 0 && status === "UNDER_BUDGET") status = "REVIEW_REQUIRED";
 
     const requiresReview = status !== "UNDER_BUDGET" && status !== "AT_BUDGET";    // Immutable snapshot: values captured on rows, never re-resolved.
     const [estimate] = await db
@@ -212,6 +206,16 @@ export class CostService {
         source: l.priceSource,
       });
     }
+
+    // Phase 18: every authoritative calculation leaves a trace (§115
+    // COST_CALCULATED). The snapshot rows above stay the source of truth.
+    await AuditService.log({
+      userId: opts.userId,
+      action: "COST_CALCULATED",
+      entityType: "DesignVersion",
+      entityId: opts.designVersionId,
+      newValue: { estimateId: estimate.id, total: estimatedTotal, status },
+    });
 
     return {
       estimateId: estimate.id,

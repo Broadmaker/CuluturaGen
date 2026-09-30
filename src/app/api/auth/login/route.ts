@@ -4,9 +4,18 @@ import { db } from "@/lib/db/client";
 import { auditLogs, users } from "@/lib/db/schema";
 import { verifyPassword } from "@/lib/auth/password";
 import { createSessionToken, setSessionCookie } from "@/lib/auth/session";
+import { clientIp, checkRateLimit, rateLimitDefaults } from "@/lib/rate-limit";
 import { loginSchema } from "@/lib/validation/schemas";
 
 export async function POST(req: Request) {
+  // md/09 §116: brute-force protection on the mutation class.
+  const rl = checkRateLimit(`auth:${clientIp(req)}`, rateLimitDefaults().authPerMin, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { ok: false, error: "Too many attempts. Try again shortly." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } },
+    );
+  }
   const body = await req.json().catch(() => null);
   const parsed = loginSchema.safeParse(body);
   if (!parsed.success) {

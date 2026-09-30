@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getSessionUser } from "@/lib/auth/session";
+import { checkRateLimit, rateLimitDefaults } from "@/lib/rate-limit";
 import { AIService } from "@/server/services/ai/AIService";
 
 const schema = z.object({
@@ -12,6 +13,19 @@ const schema = z.object({
 export async function POST(req: Request) {
   const user = await getSessionUser().catch(() => null);
   if (!user) return NextResponse.json({ ok: false }, { status: 401 });
+
+  // md/09 §116–117: AI generation is quota-capped per user (configurable).
+  const rl = checkRateLimit(
+    `ai-gen:${user.id}`,
+    rateLimitDefaults().aiGeneratePerHour,
+    3_600_000,
+  );
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { ok: false, error: "Generation quota reached. Try again later." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } },
+    );
+  }
 
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {

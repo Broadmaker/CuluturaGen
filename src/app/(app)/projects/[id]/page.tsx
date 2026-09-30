@@ -2,24 +2,26 @@ import { notFound } from "next/navigation";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { designs, projects, reports as reportsTable } from "@/lib/db/schema";
+import { AuditService } from "@/server/services/audit/AuditService";
 import StatusChanger from "@/components/projects/StatusChanger";
 import RemoveFromBasket from "@/components/projects/RemoveFromBasket";
 import GenerateButton from "@/components/design/GenerateButton";
 import GenerateReportButton from "@/components/reports/GenerateReportButton";
 import ValidationBadge from "@/components/culture/ValidationBadge";
 
-// md/08 §15 project overview. Research basket is live (MVP 2); other tabs
-// unlock with their MVPs.
+// md/08 §15 project overview. All tabs resolve: sub-pages where a workflow
+// lives (requirements, body), anchors to sections below, or the global
+// library/index pages (materials, evaluations).
 const TABS: { label: string; href: string | null }[] = [
   { label: "Overview", href: null },
   { label: "Research ✓", href: "#research" },
   { label: "Requirements ✓", href: "requirements" },
   { label: "Body ✓", href: "body" },
-  { label: "Materials (MVP 5)", href: null },
-  { label: "Designs (MVP 4)", href: null },
-  { label: "Evaluation (MVP 6)", href: null },
-  { label: "Reports", href: null },
-  { label: "History", href: null },
+  { label: "Materials ✓", href: "/materials" },
+  { label: "Designs ✓", href: "#designs" },
+  { label: "Evaluation ✓", href: "/evaluations" },
+  { label: "Reports ✓", href: "#reports" },
+  { label: "History ✓", href: "#history" },
 ];
 
 export default async function ProjectDetailPage({
@@ -39,6 +41,9 @@ export default async function ProjectDetailPage({
   if (!project) notFound();
 
   const brief = project.briefs[0] ?? null;
+  // Phase 18 traceability chain (§116): newest audit events across the
+  // project and everything reachable from it.
+  const history = await AuditService.forProject(project.id, 30);
 
   return (
     <main className="mx-auto max-w-6xl p-6">
@@ -107,7 +112,7 @@ export default async function ProjectDetailPage({
           <StatusChanger projectId={project.id} current={project.status} />
         </section>
 
-        <section className="rounded border bg-white p-4">
+        <section id="designs" className="rounded border bg-white p-4">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold">Designs</h2>
             <GenerateButton projectId={project.id} />
@@ -161,7 +166,7 @@ export default async function ProjectDetailPage({
           )}
         </section>
 
-        <section className="rounded border bg-white p-4 md:col-span-2">
+        <section id="reports" className="rounded border bg-white p-4 md:col-span-2">
           <h2 className="font-semibold">Reports ({project.reports.length})</h2>
           {project.reports.length > 0 && (
             <ul className="mt-2 space-y-1 text-sm">
@@ -180,6 +185,29 @@ export default async function ProjectDetailPage({
           <div className="mt-2">
             <GenerateReportButton projectId={project.id} />
           </div>
+        </section>
+
+        <section id="history" className="rounded border bg-white p-4 md:col-span-2">
+          <h2 className="font-semibold">History — audit trail ({history.length})</h2>
+          {history.length === 0 ? (
+            <p className="mt-2 text-sm text-neutral-500">
+              No audited events yet.
+            </p>
+          ) : (
+            <ul className="mt-2 space-y-1 text-sm">
+              {history.map((a) => (
+                <li key={a.id} className="flex flex-wrap gap-2 border-b py-1">
+                  <span className="font-medium">{a.action}</span>
+                  <span className="text-neutral-500">
+                    {a.entityType ?? "—"}
+                  </span>
+                  <span className="ml-auto text-neutral-500">
+                    {a.createdAt?.toLocaleString() ?? "—"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       </div>
     </main>

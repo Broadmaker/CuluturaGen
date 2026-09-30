@@ -4,11 +4,19 @@ import { db } from "@/lib/db/client";
 import { auditLogs, roles, userRoles, users } from "@/lib/db/schema";
 import { hashPassword } from "@/lib/auth/password";
 import { createSessionToken, setSessionCookie } from "@/lib/auth/session";
+import { clientIp, checkRateLimit, rateLimitDefaults } from "@/lib/rate-limit";
 import { registerSchema } from "@/lib/validation/schemas";
 
 // Open registration for the prototype; new users get DESIGNER.
 // Role elevation is ADMIN-only via /admin/users (MVP 1 scope).
 export async function POST(req: Request) {
+  const rl = checkRateLimit(`auth:${clientIp(req)}`, rateLimitDefaults().authPerMin, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { ok: false, error: "Too many attempts. Try again shortly." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } },
+    );
+  }
   const body = await req.json().catch(() => null);
   const parsed = registerSchema.safeParse(body);
   if (!parsed.success) {

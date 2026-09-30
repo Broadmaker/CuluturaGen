@@ -87,7 +87,9 @@ export class MockProvider implements DesignProvider {
     void imagePrompt;
     const esc = (s: string) =>
       s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    const garments = spec.garmentComponents.map((g) => esc(g.name)).join(" + ");
+    // Escape once, after slicing — escaping the joined string twice produced
+    // &amp;lt; entities (caught by tests/unit/ai-generation.test.ts).
+    const garments = spec.garmentComponents.map((g) => g.name).join(" + ");
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="768" height="1024" viewBox="0 0 768 1024">
   <rect width="768" height="1024" fill="#f5f1e8"/>
   <rect x="24" y="24" width="720" height="976" fill="none" stroke="#999" stroke-dasharray="8 6" stroke-width="2"/>

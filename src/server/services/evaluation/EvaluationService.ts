@@ -45,7 +45,7 @@ const STOP = new Set(
   ),
 );
 
-function terms(text: string): string[] {
+export function terms(text: string): string[] {
   return Array.from(
     new Set(
       text
@@ -57,7 +57,8 @@ function terms(text: string): string[] {
   );
 }
 
-function requirementCoverage(requirement: string, specText: string) {
+// Exported for §121 unit tests — same functions the engine runs.
+export function requirementCoverage(requirement: string, specText: string) {
   const t = terms(requirement);
   if (t.length === 0) return { ratio: 1, matched: [] as string[], missing: [] as string[] };
   const s = specText.toLowerCase();
@@ -65,7 +66,7 @@ function requirementCoverage(requirement: string, specText: string) {
   return { ratio: matched.length / t.length, matched, missing: t.filter((w) => !s.includes(w)) };
 }
 
-function domainFromFindings(severities: Severity[]): DomainStatus {
+export function domainFromFindings(severities: Severity[]): DomainStatus {
   if (severities.includes("CRITICAL")) return "FAIL";
   if (severities.includes("HIGH")) return "REVIEW_REQUIRED";
   if (severities.includes("MEDIUM")) return "PASS_WITH_WARNINGS";
