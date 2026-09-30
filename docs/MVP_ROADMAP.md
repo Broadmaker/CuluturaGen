@@ -133,6 +133,21 @@
 - [x] Integration test proves the CULTURAL_CONTEXT finding fires vs real DB
   (self-cleaning probe rows); suite now 53/53; all 9 smokes still exit 0
 
+## Design lifecycle enforcement ✅ (md/02 §43, md/07 §91–94)
+- [x] `DESIGN_STATUSES` + `DESIGN_TRANSITIONS` + `canTransitionDesign()` in
+  DesignService (mirrors ProjectService); guarded `setStatus()` rejects
+  illegal jumps with 409 — FINAL can never regenerate (archival only)
+- [x] Lifecycle wired: generate → GENERATING → GENERATED (FAILED is truthful
+  now, was silent DRAFT reset); regenerate via REVISION; evaluate sets
+  EVALUATING → REVIEW_REQUIRED/REVIEWED (read-only re-run on
+  FINAL/APPROVED); resolve-all → REVIEWED; approve → APPROVED;
+  request-revision → REVISION; finalize → FINAL
+- [x] Approval gates (approve + finalize) block on unresolved CRITICAL **and**
+  HIGH (was: CRITICAL only) — over-budget / wrong-culture can no longer
+  become FINAL; 422 names both counts
+- [x] Unit tests for the machine; smoke-mvp7 proves regenerate-on-FINAL 409
+  and HIGH-blocks-finalize; suite 60/60; all 9 smokes exit 0
+
 ## Deferred (md/01 §51)
 Computer vision (after core works), 3D/AR, pattern generation, marketplace,
 supplier integration, mobile app.

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { auditLogs, designs, evaluationFindings, evaluations, humanReviews } from "@/lib/db/schema";
 import { getSessionUser } from "@/lib/auth/session";
+import { DesignService } from "@/server/services/design/DesignService";
 
 // Deliberate final approval (md/08 §64–65). Gated exactly like review
 // approval: a signed-in human, a latest evaluation, zero unresolved CRITICAL.
@@ -42,14 +43,20 @@ export async function POST(
     );
   }
 
-  const openCritical = await db.query.evaluationFindings.findMany({
-    where: (f, { and, eq: e }) =>
-      and(e(f.evaluationId, evaluation.id), e(f.severity, "CRITICAL"), e(f.resolved, false)),
-    columns: { id: true },
+  const blocking = await db.query.evaluationFindings.findMany({
+    where: (f, { and, eq: e, inArray: ia }) =>
+      and(
+        e(f.evaluationId, evaluation.id),
+        ia(f.severity, ["CRITICAL", "HIGH"]),
+        e(f.resolved, false),
+      ),
+    columns: { id: true, severity: true },
   });
-  if (openCritical.length > 0) {
+  if (blocking.length > 0) {
+    const critical = blocking.filter((f) => f.severity === "CRITICAL").length;
+    const high = blocking.length - critical;
     return NextResponse.json(
-      { ok: false, error: `${openCritical.length} CRITICAL finding(s) remain unresolved.` },
+      { ok: false, error: `${blocking.length} blocking finding(s) remain unresolved (${critical} CRITICAL, ${high} HIGH).` },
       { status: 422 },
     );
   }
@@ -67,11 +74,18 @@ export async function POST(
       finalApproval: true,
     })
     .returning();
-  const [final] = await db
-    .update(designs)
-    .set({ status: "FINAL" })
-    .where(eq(designs.id, design.id))
-    .returning();
+  // Guarded FINAL transition (APPROVED/REVIEWED/REVIEW_REQUIRED → FINAL).
+  // Stays inside try so an illegal jump surfaces as 409, not 500.
+  try {
+    await DesignService.setStatus(design.id, "FINAL");
+  } catch (e) {
+    const status = (e as { status?: number })?.status ?? 500;
+    return NextResponse.json(
+      { ok: false, error: e instanceof Error ? e.message : "Final approval failed." },
+      { status },
+    );
+  }
+  const [final] = await db.select().from(designs).where(eq(designs.id, design.id));
   await db.insert(auditLogs).values({
     userId: user.id,
     action: "DESIGN_ACCEPTED",

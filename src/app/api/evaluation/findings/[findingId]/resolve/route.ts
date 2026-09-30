@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db/client";
-import { auditLogs, designFeedback, evaluationFindings, evaluations } from "@/lib/db/schema";
+import { auditLogs, designFeedback, designVersions, designs, evaluationFindings, evaluations } from "@/lib/db/schema";
 import { getSessionUser } from "@/lib/auth/session";
+import { DesignService } from "@/server/services/design/DesignService";
 
 const schema = z.object({ comment: z.string().max(2000).optional() });
 
@@ -54,5 +55,32 @@ export async function POST(
     entityId: finding.id,
     newValue: { resolved: true, comment: parsed.data.comment ?? null },
   });
+
+  // All findings resolved → the design leaves REVIEW_REQUIRED for REVIEWED.
+  // Only from REVIEW_REQUIRED: resolving an old evaluation must never yank a
+  // design out of REVISION/GENERATING/etc.
+  const [evaluation] = await db
+    .select()
+    .from(evaluations)
+    .where(eq(evaluations.id, finding.evaluationId));
+  if (evaluation) {
+    const open = await db.query.evaluationFindings.findMany({
+      where: (f, { and, eq: e }) =>
+        and(e(f.evaluationId, evaluation.id), e(f.resolved, false)),
+      columns: { id: true },
+    });
+    if (open.length === 0) {
+      const [version] = await db
+        .select()
+        .from(designVersions)
+        .where(eq(designVersions.id, evaluation.designVersionId));
+      if (version) {
+        const [design] = await db.select().from(designs).where(eq(designs.id, version.designId));
+        if (design && design.status === "REVIEW_REQUIRED") {
+          await DesignService.setStatus(design.id, "REVIEWED");
+        }
+      }
+    }
+  }
   return NextResponse.json({ ok: true, data: updated });
 }

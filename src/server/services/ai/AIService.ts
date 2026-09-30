@@ -18,6 +18,7 @@ import {
 } from "@/lib/ai/constraint-engine";
 import { designSpecSchema } from "@/lib/ai/spec-schema";
 import { getProvider } from "@/lib/ai/provider";
+import { DesignService } from "@/server/services/design/DesignService";
 import { saveGeneratedImage } from "@/lib/storage";
 
 function makeDesignCode(): string {
@@ -91,7 +92,8 @@ export class AIService {
       }
       designId = created!.id;
     } else {
-      await db.update(designs).set({ status: "GENERATING" }).where(eq(designs.id, designId));
+      // Guarded: regenerating a FINAL design is rejected with 409.
+      await DesignService.setStatus(designId, "GENERATING");
     }
 
     const [version] = await db
@@ -143,7 +145,8 @@ export class AIService {
     } catch (e) {
       await this.failJob(specJob.id, e);
       await db.update(designVersions).set({ status: "FAILED" }).where(eq(designVersions.id, version.id));
-      await db.update(designs).set({ status: "DRAFT" }).where(eq(designs.id, designId));
+      // Truthful failure state (was: reset to DRAFT, hiding the attempt).
+      await DesignService.setStatus(designId, "FAILED");
       throw e;
     }
 
@@ -205,9 +208,10 @@ export class AIService {
       await db.update(designVersions).set({ status: "GENERATED" }).where(eq(designVersions.id, version.id));
     }
 
+    await DesignService.setStatus(designId, "GENERATED");
     await db
       .update(designs)
-      .set({ status: "GENERATED", currentVersion: versionNumber })
+      .set({ currentVersion: versionNumber })
       .where(eq(designs.id, designId));
     await db.insert(auditLogs).values({
       userId: opts.userId,

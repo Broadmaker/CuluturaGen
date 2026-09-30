@@ -12,7 +12,71 @@ import type { DesignSpec } from "@/lib/ai/spec-schema";
 
 // md/02 §47 version comparison data. Shared by the compare API and page so
 // both read identical snapshots.
+import type { DesignStatus } from "@/types";
+
+export const DESIGN_STATUSES = [
+  "DRAFT",
+  "GENERATING",
+  "GENERATED",
+  "EVALUATING",
+  "REVIEW_REQUIRED",
+  "REVISION",
+  "REVIEWED",
+  "APPROVED",
+  "FINAL",
+  "FAILED",
+  "REJECTED",
+  "ARCHIVED",
+] as const;
+
+export type DesignStatusName = (typeof DESIGN_STATUSES)[number];
+
+// md/02 §43 design lifecycle. Mirrors ProjectService's machine: every status
+// write goes through setStatus(), which rejects illegal jumps with 409.
+export const DESIGN_TRANSITIONS: Record<DesignStatusName, DesignStatusName[]> = {
+  DRAFT: ["GENERATING", "REVISION", "ARCHIVED"],
+  GENERATING: ["GENERATED", "FAILED", "ARCHIVED"],
+  FAILED: ["GENERATING", "ARCHIVED"],
+  GENERATED: ["GENERATING", "EVALUATING", "REVISION", "ARCHIVED"],
+  EVALUATING: ["REVIEW_REQUIRED", "REVIEWED", "ARCHIVED"],
+  REVIEW_REQUIRED: ["EVALUATING", "GENERATING", "REVISION", "REVIEWED", "APPROVED", "FINAL", "ARCHIVED"],
+  REVISION: ["GENERATING", "ARCHIVED"],
+  REVIEWED: ["EVALUATING", "GENERATING", "REVISION", "APPROVED", "FINAL", "ARCHIVED"],
+  APPROVED: ["GENERATING", "REVISION", "FINAL", "ARCHIVED"],
+  FINAL: ["ARCHIVED"],
+  REJECTED: ["REVISION", "GENERATING", "ARCHIVED"],
+  ARCHIVED: [],
+};
+
+export function isValidDesignStatus(s: string): s is DesignStatusName {
+  return (DESIGN_STATUSES as readonly string[]).includes(s);
+}
+
+export function canTransitionDesign(from: string, to: string): boolean {
+  if (from === to) return true;
+  if (!isValidDesignStatus(from) || !isValidDesignStatus(to)) return false;
+  return DESIGN_TRANSITIONS[from].includes(to);
+}
+
 export class DesignService {
+  static statuses = DESIGN_STATUSES;
+  static transitions = DESIGN_TRANSITIONS;
+  static canTransition = canTransitionDesign;
+
+  // Guarded status write: illegal jumps throw 409 instead of corrupting the
+  // lifecycle. FINAL designs can never regenerate (archival only).
+  static async setStatus(designId: string, to: DesignStatusName): Promise<string> {
+    const [design] = await db.select().from(designs).where(eq(designs.id, designId));
+    if (!design) throw Object.assign(new Error("Design not found."), { status: 404 });
+    const from = design.status ?? "DRAFT";
+    if (!canTransitionDesign(from, to)) {
+      throw Object.assign(new Error(`Illegal design transition ${from} → ${to}.`), { status: 409 });
+    }
+    if (from === to) return from;
+    await db.update(designs).set({ status: to as DesignStatus }).where(eq(designs.id, designId));
+    return to;
+  }
+
   static async compare(designId: string, a: number, b: number) {
     const [design] = await db.select().from(designs).where(eq(designs.id, designId));
     if (!design) return null;

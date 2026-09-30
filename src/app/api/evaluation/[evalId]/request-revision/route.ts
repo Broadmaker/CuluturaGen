@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db/client";
-import { auditLogs, evaluations, humanReviews } from "@/lib/db/schema";
+import { auditLogs, designVersions, evaluations, humanReviews } from "@/lib/db/schema";
 import { getSessionUser } from "@/lib/auth/session";
+import { DesignService } from "@/server/services/design/DesignService";
 
 const schema = z.object({
   comment: z.string().min(1).max(2000),
@@ -24,6 +25,20 @@ export async function POST(
   }
   const [evaluation] = await db.select().from(evaluations).where(eq(evaluations.id, params.evalId));
   if (!evaluation) return NextResponse.json({ ok: false, error: "Not found." }, { status: 404 });
+
+  try {
+    const [version] = await db
+      .select()
+      .from(designVersions)
+      .where(eq(designVersions.id, evaluation.designVersionId));
+    if (version) await DesignService.setStatus(version.designId, "REVISION");
+  } catch (e) {
+    const status = (e as { status?: number })?.status ?? 500;
+    return NextResponse.json(
+      { ok: false, error: e instanceof Error ? e.message : "Revision request failed." },
+      { status },
+    );
+  }
 
   const [review] = await db
     .insert(humanReviews)

@@ -6,6 +6,7 @@ import { designs } from "@/lib/db/schema";
 import { getSessionUser } from "@/lib/auth/session";
 import { checkRateLimit, rateLimitDefaults } from "@/lib/rate-limit";
 import { AIService } from "@/server/services/ai/AIService";
+import { DesignService } from "@/server/services/design/DesignService";
 
 const schema = z.object({ instruction: z.string().max(2000).optional() });
 
@@ -37,6 +38,9 @@ export async function POST(
   if (!design) return NextResponse.json({ ok: false, error: "Not found." }, { status: 404 });
 
   try {
+    // New version cycle: REVISION → GENERATING → GENERATED (guarded; a FINAL
+    // design is rejected here with 409 and never regenerated).
+    await DesignService.setStatus(design.id, "REVISION");
     const result = await AIService.generate({
       projectId: design.projectId,
       userId: user.id,

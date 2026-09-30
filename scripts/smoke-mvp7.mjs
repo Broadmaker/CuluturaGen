@@ -82,6 +82,10 @@ check("finalize 201 FINAL", fin1.status === 201 && fin1.json?.data?.status === "
 const fin2 = await call("POST", `/api/designs/${designId}/finalize`, {}, A);
 check("finalize idempotent", fin2.status === 200 && fin2.json?.finalized === false, `got ${fin2.status}`);
 
+// --- lifecycle: FINAL designs cannot start a new version cycle ---
+const regenFinal = await call("POST", `/api/designs/${designId}/regenerate`, { instruction: "One more" }, A);
+check("regenerate on FINAL 409", regenFinal.status === 409, `got ${regenFinal.status}`);
+
 // --- finalize blocked by CRITICAL on a guarded design ---
 const proj2 = await call("POST", "/api/projects", { name: "Smoke Guarded" }, A);
 const pid2 = proj2.json?.data?.id;
@@ -99,9 +103,27 @@ for (const f of (latest2.json?.data?.findings ?? []).filter((x) => !x.resolved))
 const fin3 = await call("POST", `/api/designs/${design2}/finalize`, {}, A);
 check("finalize 201 after resolution", fin3.status === 201 && fin3.json?.data?.status === "FINAL", `got ${fin3.status}`);
 
+// --- finalize blocked by HIGH (over-budget), not just CRITICAL (md/07 §91) ---
+const proj3 = await call("POST", "/api/projects", { name: "Smoke Budget", budget: 100 }, A);
+const pid3 = proj3.json?.data?.id;
+await call("POST", `/api/projects/${pid3}/basket`, { culturalElementId: textile.id }, A);
+const gen3 = await call("POST", "/api/designs/generate", { projectId: pid3 }, A);
+const design3 = gen3.json?.data?.design?.id;
+const vid3 = gen3.json?.data?.version?.id;
+await call("POST", `/api/versions/${vid3}/cost/calculate`, { labor: [{ description: "Hand tailoring", quantity: 50, unitPrice: 1000 }] }, A);
+await call("POST", `/api/designs/${design3}/evaluate`, {}, A);
+const overState = await call("GET", `/api/designs/${design3}/evaluation`, null, A);
+const overFindings = overState.json?.data?.findings ?? [];
+const highs = overFindings.filter((f) => !f.resolved && f.severity === "HIGH");
+const criticals = overFindings.filter((f) => !f.resolved && f.severity === "CRITICAL");
+check("over-budget HIGH present, no CRITICAL", highs.length > 0 && criticals.length === 0, `high=${highs.length} critical=${criticals.length}`);
+const finHigh = await call("POST", `/api/designs/${design3}/finalize`, {}, A);
+check("finalize blocked 422 on HIGH", finHigh.status === 422, `got ${finHigh.status}`);
+
 // --- cleanup ---
 await call("DELETE", `/api/projects/${pid}`, null, A);
 await call("DELETE", `/api/projects/${pid2}`, null, A);
+await call("DELETE", `/api/projects/${pid3}`, null, A);
 
 console.log(results.join("\n"));
 process.exit(results.some((x) => x.startsWith("FAIL")) ? 1 : 0);
