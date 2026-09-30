@@ -46,8 +46,10 @@ export async function POST(
     return NextResponse.json({ ok: true, data: result }, { status: 201 });
   } catch (e) {
     const status = (e as { status?: number })?.status ?? 500;
+    const code = (e as { code?: string })?.code;
+    const details = (e as { details?: unknown })?.details;
     return NextResponse.json(
-      { ok: false, error: e instanceof Error ? e.message : "Calculation failed." },
+      { ok: false, error: e instanceof Error ? e.message : "Calculation failed.", ...(code ? { code, details } : {}) },
       { status },
     );
   }

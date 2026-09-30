@@ -11,6 +11,7 @@ import {
 } from "@/lib/db/schema";
 import { costProfile } from "@/lib/cost/constants";
 import { resolveBudgetStatus } from "@/lib/cost/budget";
+import { validateCostInputs } from "@/lib/cost/validate";
 import { AuditService } from "@/server/services/audit/AuditService";
 
 export interface AdHocLine {
@@ -154,11 +155,43 @@ export class CostService {
     const directCost = round2(materials + labor + decoration + other);
 
     const contingencyPct = opts.contingencyPct ?? profile.contingencyPct;
-    const contingency = round2((directCost * contingencyPct) / 100);
-    const estimatedTotal = round2(directCost + contingency);
 
     // Budget from latest brief — resolved via the design's project below.
-    const budget = await this.resolveBudget(version.designId);
+    const { amount: budget, currency: budgetCurrency } = await this.resolveBudget(version.designId);
+
+    // md/06 §56 + §91-92: invalid inputs fail fast with structured codes —
+    // never silently zeroed. Missing *prices* are not input errors; they
+    // flow through to INCOMPLETE snapshots below.
+    const withCategory = (
+      items: AdHocLine[] | undefined,
+      category: "LABOR" | "DECORATION" | "OTHER",
+    ) => (items ?? []).map((l) => ({ category, ...l }));
+    const issues = validateCostInputs({
+      materials: linked.map((l) => ({
+        materialId: l.materialId,
+        name: l.material.name,
+        quantity: l.quantity,
+        unit: l.unit ?? undefined,
+      })),
+      adHoc: [
+        ...withCategory(opts.labor, "LABOR"),
+        ...withCategory(opts.decoration, "DECORATION"),
+        ...withCategory(opts.other, "OTHER"),
+      ],
+      budget,
+      budgetCurrency,
+      profileCurrency: profile.currency,
+      contingencyPct,
+    });
+    if (issues.length > 0) {
+      throw Object.assign(
+        new Error(`Invalid cost inputs: ${issues.map((i) => i.message).join(" ")}`),
+        { status: 422, code: "COST_VALIDATION_FAILED", details: issues },
+      );
+    }
+
+    const contingency = round2((directCost * contingencyPct) / 100);
+    const estimatedTotal = round2(directCost + contingency);
 
     // Thresholds live in src/lib/cost/budget.ts (pure, unit-tested).
     const status = resolveBudgetStatus({
@@ -239,19 +272,24 @@ export class CostService {
     };
   }
 
-  private static async resolveBudget(designId: string): Promise<number | null> {
+  private static async resolveBudget(
+    designId: string,
+  ): Promise<{ amount: number | null; currency: string | null }> {
     const design = await db.query.designs.findFirst({
       where: eq(designs.id, designId),
       columns: { projectId: true },
     });
-    if (!design) return null;
+    if (!design) return { amount: null, currency: null };
     const briefs = await db.query.designBriefs.findMany({
       where: eq(designBriefs.projectId, design.projectId),
       orderBy: desc(designBriefs.createdAt),
       limit: 1,
-      columns: { budget: true },
+      columns: { budget: true, currency: true },
     });
     const b = briefs[0]?.budget;
-    return b === null || b === undefined ? null : Number(b);
+    return {
+      amount: b === null || b === undefined ? null : Number(b),
+      currency: briefs[0]?.currency ?? null,
+    };
   }
 }

@@ -148,6 +148,22 @@
 - [x] Unit tests for the machine; smoke-mvp7 proves regenerate-on-FINAL 409
   and HIGH-blocks-finalize; suite 60/60; all 9 smokes exit 0
 
+## Cost input validation ✅ (md/06 §56, §91–92)
+- [x] Pure `validateCostInputs()` (`src/lib/cost/validate.ts`): finite-number
+  parsing (rejects NaN/Infinity/numeric garbage), quantities > 0, sane
+  units, non-negative prices, 0–100 contingency, non-negative budget,
+  brief-vs-engine currency match — structured codes INVALID_QUANTITY /
+  INVALID_UNIT / INVALID_PRICE / INVALID_CONTINGENCY / INVALID_BUDGET /
+  CURRENCY_MISMATCH
+- [x] CostService fails fast with 422 COST_VALIDATION_FAILED + per-issue
+  details before any snapshot insert (was: zero-quantity lines silently
+  zeroed); `resolveBudget` now returns amount + currency; both cost routes
+  pass `code`/`details` through; missing prices still → INCOMPLETE, never
+  invented
+- [x] 9 unit + 4 integration tests (engine 422s proven vs real DB incl.
+  currency mismatch; valid path still calculates); route-level 400s in
+  smoke-mvp5; suite 73/73; all 9 smokes exit 0
+
 ## Deferred (md/01 §51)
 Computer vision (after core works), 3D/AR, pattern generation, marketplace,
 supplier integration, mobile app.

@@ -115,6 +115,14 @@ check("new price reflected in recalc (4×950)", calc3.json?.data?.materials === 
 const history = await call("GET", `/api/designs/${designId}/cost-history`, null, A);
 check("cost history lists estimates", history.status === 200 && history.json?.data?.length >= 3, `got ${history.json?.data?.length}`);
 
+// --- invalid inputs rejected (route guard 400; engine 422 covered in vitest) ---
+const badQty = await call("POST", `/api/versions/${versionId}/cost/calculate`, {
+  labor: [{ description: "Sewing", quantity: -2, unitPrice: 180 }],
+}, A);
+check("negative quantity rejected 400", badQty.status === 400, `got ${badQty.status}`);
+const badCont = await call("POST", `/api/versions/${versionId}/cost/calculate`, { contingencyPct: 150 }, A);
+check("contingency >100 rejected 400", badCont.status === 400, `got ${badCont.status}`);
+
 // --- pages ---
 for (const p of ["/materials", `/materials/${textile.id}`, `/design-studio/${designId}`]) {
   const pg = await fetch(BASE + p, { headers: { Cookie: A } });
