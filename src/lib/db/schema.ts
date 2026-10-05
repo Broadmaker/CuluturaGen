@@ -1,10 +1,12 @@
 // Drizzle schema — Human-AI Collaborative Cultural Attire Design Platform
-// 1:1 port of the MVP scope in md/03_DATABASE_SCHEMA.md (§74), which permits
-// Prisma / Drizzle / SQLAlchemy — Drizzle chosen for typed retrieval queries
+// 1:1 port of the MVP scope in md/03_DATABASE_SCHEMA.md (§74).
+// DECIDED: Drizzle ORM only — Prisma / SQLAlchemy were pre-decision options
+// in md/03 §1 and are not used. Drizzle chosen for typed retrieval queries
 // (pgvector + recursive CTEs in Phase 2). Table/column names match the MD's SQL.
 import {
   bigint,
   boolean,
+  customType,
   date,
   decimal,
   index,
@@ -17,6 +19,16 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+
+// Native full-text search vector (md/03 §61, md/04 §72). Maintained by a
+// DB trigger (see migration 0003); pgvector dense embeddings arrive later
+// when the extension is available — the fusion scorer already accepts an
+// optional vector score so the upgrade is additive.
+const tsvector = customType<{ data: string; driverData: string }>({
+  dataType() {
+    return "tsvector";
+  },
+});
 
 // ---------- 001_auth ----------
 export const users = pgTable("users", {
@@ -207,6 +219,7 @@ export const culturalElements = pgTable(
     restrictedContext: text("restricted_context"),
     validationStatus: varchar("validation_status", { length: 50 }).default("UNVERIFIED"),
     expertNotes: text("expert_notes"),
+    searchVector: tsvector("search_vector"),
     createdBy: uuid("created_by"),
     verifiedBy: uuid("verified_by"),
     verifiedAt: timestamp("verified_at"),

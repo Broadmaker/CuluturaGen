@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import StatusBadge from "@/components/status/StatusBadge";
 
 interface Finding {
   id: string;
@@ -151,9 +152,7 @@ export default function EvaluationPanel({
           {pending ? "Evaluating…" : evaluation ? "Re-evaluate V" + versionNumber : "Run evaluation"}
         </button>
         {evaluation && (
-          <span className="rounded border px-2 py-0.5 text-xs font-medium">
-            {evaluation.overallStatus?.replace(/_/g, " ")}
-          </span>
+          <StatusBadge value={evaluation.overallStatus} />
         )}
       </div>
       {error && <p className="mt-2 text-red-700">{error}</p>}

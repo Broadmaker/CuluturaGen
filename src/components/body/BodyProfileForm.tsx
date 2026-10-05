@@ -3,15 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BODY_FIELDS, type BodyFieldKey } from "@/lib/brief/constants";
+import StatusBadge from "@/components/status/StatusBadge";
 
 export interface BodySnapshot {
   id: string;
   clientId: string | null;
   measurementSource: string | null;
   designerVerified: boolean | null;
+  confidenceLevel?: string | null;
+  imageUrl?: string | null;
   notes: string | null;
   createdAt: string;
-  [key: string]: string | boolean | null;
+  [key: string]: string | boolean | null | undefined;
 }
 
 // Every save inserts a new snapshot row (history preserved); the form edits
@@ -91,7 +94,12 @@ export default function BodyProfileForm({
   return (
     <div className="mt-4">
       <div className="flex flex-wrap items-center gap-2 text-sm">
-        <span className="rounded border px-2 py-0.5 text-xs">MANUAL</span>
+        <StatusBadge value={latest?.measurementSource ?? "MANUAL"} />
+        {(latest?.measurementSource === "COMPUTER_VISION" || latest?.measurementSource === "ESTIMATED") && !latest?.designerVerified && (
+          <span className="rounded border border-amber-700 bg-amber-50 px-2 py-0.5 text-xs text-amber-800">
+            ⚠ ESTIMATED — review required{latest?.confidenceLevel ? ` (confidence ${latest.confidenceLevel})` : ""}
+          </span>
+        )}
         {latest?.designerVerified ? (
           <span className="rounded border border-green-700 bg-green-50 px-2 py-0.5 text-xs text-green-800">
             ✓ DESIGNER VERIFIED
@@ -141,8 +149,9 @@ export default function BodyProfileForm({
       </div>
       {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
       <p className="mt-3 text-xs text-neutral-500">
-        Manual entry only in MVP 3. Computer-vision estimates arrive later and will
-        be labeled ESTIMATED, never silently treated as measured (md/01 §15).
+        Snapshots preserve history: POST starts a session, PATCH corrects the latest.
+        Vision estimates are labeled by source above and must be designer-verified
+        before construction (md/01 §15).
       </p>
     </div>
   );

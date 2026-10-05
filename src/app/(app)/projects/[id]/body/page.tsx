@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { bodyProfiles, clients, projects } from "@/lib/db/schema";
+import { aiJobs, bodyProfiles, clients, projects } from "@/lib/db/schema";
 import BodySection from "@/components/body/BodySection";
 
 export default async function BodyPage({
@@ -15,7 +15,7 @@ export default async function BodyPage({
   });
   if (!project) notFound();
 
-  const [clientList, profileList] = await Promise.all([
+  const [clientList, profileList, visionJobs] = await Promise.all([
     db.query.clients.findMany({
       where: eq(clients.projectId, params.id),
       orderBy: desc(clients.createdAt),
@@ -25,7 +25,21 @@ export default async function BodyPage({
       orderBy: desc(bodyProfiles.createdAt),
       limit: 20,
     }),
+    db.query.aiJobs.findMany({
+      where: and(eq(aiJobs.projectId, params.id), eq(aiJobs.jobType, "BODY_ANALYSIS")),
+      orderBy: desc(aiJobs.createdAt),
+      limit: 20,
+    }),
   ]);
+
+  // Link each vision estimate back to its reference photo via the job output.
+  const imageByProfile = new Map<string, string>();
+  for (const job of visionJobs) {
+    const out = job.outputPayload as { profileId?: string; imageUrl?: string } | null;
+    if (out?.profileId && out.imageUrl && !imageByProfile.has(out.profileId)) {
+      imageByProfile.set(out.profileId, out.imageUrl);
+    }
+  }
 
   // Numeric strings → display strings; the form posts numbers back.
   const profiles = profileList.map((p) => ({
@@ -33,6 +47,8 @@ export default async function BodyPage({
     clientId: p.clientId,
     measurementSource: p.measurementSource,
     designerVerified: p.designerVerified,
+    confidenceLevel: p.confidenceLevel,
+    imageUrl: imageByProfile.get(p.id) ?? null,
     notes: p.notes,
     createdAt: p.createdAt?.toISOString() ?? "",
     heightCm: p.heightCm,

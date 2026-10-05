@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import Button from "@/components/ui/Button";
 
 export default function LoginPage() {
   return (
@@ -46,59 +47,85 @@ function LoginForm() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
-      <p className="text-sm font-semibold uppercase tracking-widest text-neutral-500">
-        AttireLab
-      </p>
-      <h1 className="mt-2 text-3xl font-bold">Log in</h1>
-      <form onSubmit={onSubmit} className="mt-8 space-y-4">
-        <div>
-          <label htmlFor="email" className="text-sm font-medium">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            required
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded border px-3 py-2"
-          />
-        </div>
-        <div>
-          <label htmlFor="password" className="text-sm font-medium">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            required
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded border px-3 py-2"
-          />
-        </div>
-        {error && (
-          <p role="alert" className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
+    <main className="flex min-h-screen items-center justify-center bg-ink-950 px-6 py-12">
+      <div className="w-full max-w-4xl overflow-hidden rounded-2xl shadow-pop md:grid md:grid-cols-2">
+        <div className="hidden flex-col justify-between bg-ink-900 p-8 text-white md:flex">
+          <div className="flex items-center gap-2.5">
+            <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-lg bg-brass-500 font-display text-xl text-ink-950">
+              A
+            </span>
+            <span>
+              <span className="block font-display text-xl leading-none">AttireLab</span>
+              <span className="mt-0.5 block text-[11px] uppercase tracking-widest text-brass-200">
+                Heritage design lab
+              </span>
+            </span>
+          </div>
+          <div>
+            <p className="font-display text-2xl leading-snug">
+              Culturally grounded, body-personalized, cost-aware attire design.
+            </p>
+            <ol className="mt-4 space-y-1.5 text-sm text-stone-300">
+              <li>① Research verified cultural knowledge</li>
+              <li>② Define requirements, body & budget</li>
+              <li>③ Generate, evaluate, refine — then approve</li>
+            </ol>
+          </div>
+          <p className="text-xs text-stone-400">
+            Knowledge → Constraints → Generation → Evaluation → Human Review
           </p>
-        )}
-        <button
-          type="submit"
-          disabled={pending}
-          className="w-full rounded bg-black px-4 py-2 text-white disabled:opacity-50"
-        >
-          {pending ? "Logging in…" : "Log in"}
-        </button>
-      </form>
-      <p className="mt-6 text-sm text-neutral-600">
-        No account?{" "}
-        <Link href="/register" className="underline">
-          Register
-        </Link>
-      </p>
+        </div>
+        <div className="flex flex-col justify-center bg-white px-8 py-10">
+          <p className="text-xs font-semibold uppercase tracking-widest text-brass-700 md:hidden">
+            AttireLab
+          </p>
+          <h1 className="mt-1 font-display text-3xl text-ink-950">Log in</h1>
+          <form onSubmit={onSubmit} className="mt-6 space-y-4">
+            <div>
+              <label htmlFor="email" className="text-sm font-medium text-stone-700">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input mt-1"
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="text-sm font-medium text-stone-700">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input mt-1"
+              />
+            </div>
+            {error && (
+              <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+                {error}
+              </p>
+            )}
+            <Button type="submit" disabled={pending} className="w-full" size="md">
+              {pending ? "Logging in…" : "Log in"}
+            </Button>
+          </form>
+          <p className="mt-6 text-sm text-stone-600">
+            No account?{" "}
+            <Link href="/register" className="font-medium text-ink-800 underline underline-offset-2">
+              Register
+            </Link>
+          </p>
+        </div>
+      </div>
     </main>
   );
 }

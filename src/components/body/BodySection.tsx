@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ClientManager, { type Client } from "./ClientManager";
 import BodyProfileForm, { type BodySnapshot } from "./BodyProfileForm";
+import BodyAnalysisPanel from "./BodyAnalysisPanel";
 
 // Owns the selected client so the profile form attaches to the right person.
 export default function BodySection({
@@ -34,6 +35,15 @@ export default function BodySection({
         latest={latest}
         historyCount={profiles.length}
         clientId={clientId}
+      />
+      <BodyAnalysisPanel
+        projectId={projectId}
+        clientId={clientId}
+        latestId={latest?.id ?? null}
+        latestSource={latest?.measurementSource ?? null}
+        latestVerified={latest?.designerVerified ?? null}
+        latestConfidence={latest?.confidenceLevel ?? null}
+        latestImageUrl={latest?.imageUrl ?? null}
       />
     </div>
   );

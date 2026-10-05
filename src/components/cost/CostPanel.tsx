@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import StatusBadge from "@/components/status/StatusBadge";
 
 interface LinkedMaterial {
   id: string;
@@ -218,7 +219,7 @@ export default function CostPanel({
             )}
           </div>
           <p className="mt-2">
-            <span className="rounded border px-2 py-0.5 text-xs font-medium">{result.status.replace(/_/g, " ")}</span>
+            <StatusBadge value={result.status} />
           </p>
           {result.missingPrices.length > 0 && (
             <p className="mt-1 text-amber-700">⚠ Missing prices: {result.missingPrices.map((m) => m.name).join(", ")} — add prices in the library, then recalculate.</p>

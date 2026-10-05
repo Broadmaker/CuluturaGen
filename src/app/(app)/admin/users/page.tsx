@@ -3,6 +3,7 @@ import { asc } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { users } from "@/lib/db/schema";
 import { getSessionUser, hasRole } from "@/lib/auth/session";
+import StatusBadge from "@/components/status/StatusBadge";
 
 // MVP 1 admin: user list with roles + status (md/01 §36).
 export default async function AdminUsersPage() {
@@ -37,7 +38,7 @@ export default async function AdminUsersPage() {
               <td>{u.displayName ?? "—"}</td>
               <td>{u.userRoles.map((r) => r.role.code).join(", ") || "—"}</td>
               <td>
-                <span className="rounded border px-2 py-0.5 text-xs">{u.status}</span>
+                <StatusBadge value={u.status} />
               </td>
               <td className="px-3 text-neutral-500">
                 {u.lastLoginAt ? u.lastLoginAt.toLocaleString() : "—"}

@@ -40,6 +40,27 @@ export async function saveReportFile(
   return { relativePath, url: `/api/files/${relativePath}` };
 }
 
+export async function saveBodyReferenceImage(
+  projectId: string,
+  bytes: Buffer,
+  ext: "jpg" | "png" | "webp",
+): Promise<{ relativePath: string; url: string }> {
+  const dir = ["projects", "uploads", projectId];
+  await fs.mkdir(safeJoin(...dir), { recursive: true });
+  const file = `body-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  await fs.writeFile(safeJoin(...dir, file), bytes);
+  const relativePath = [...dir, file].join("/");
+  return { relativePath, url: `/api/files/${relativePath}` };
+}
+
+export async function deleteStorageFile(relativePath: string): Promise<void> {
+  try {
+    await fs.unlink(safeJoin(relativePath));
+  } catch {
+    // Best-effort: the DB row is the source of truth; a missing file is fine.
+  }
+}
+
 export async function readStorageFile(relativePath: string): Promise<{ bytes: Buffer; ext: string } | null> {
   try {
     const bytes = await fs.readFile(safeJoin(relativePath));
@@ -60,4 +81,13 @@ const MIME: Record<string, string> = {
 
 export function mimeForExt(ext: string): string {
   return MIME[ext] ?? "application/octet-stream";
+}
+
+// Health probe (production readiness): verifies the storage root is writable.
+// Throws on failure; the health endpoint converts it to a degraded check.
+export async function probeStorage(): Promise<void> {
+  const name = `.health-${Date.now().toString(36)}`;
+  const full = safeJoin(name);
+  await fs.writeFile(full, "ok");
+  await fs.unlink(full);
 }

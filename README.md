@@ -13,7 +13,7 @@ Pipeline: **Knowledge → Constraints → Generation → Evaluation → Human Re
 - DB: PostgreSQL + pgvector (Phase 2)
 - Graph: Postgres relational layer for MVP, Neo4j later
 - AI: external LLM + image APIs (server-side only)
-- ORM: Drizzle (`src/lib/db/schema.ts` mirrors `md/03`; allowed by md/03 §4)
+- ORM: Drizzle (decided — Prisma not used; `src/lib/db/schema.ts` mirrors `md/03`)
 - Driver: node-postgres (`pg` + `@types/pg`)
 
 ## Start (MVP 1 — App Foundation)

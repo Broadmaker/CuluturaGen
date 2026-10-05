@@ -2,6 +2,8 @@ import Link from "next/link";
 import { desc } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { evaluations } from "@/lib/db/schema";
+import StatusBadge from "@/components/status/StatusBadge";
+import PageHeader from "@/components/ui/PageHeader";
 
 // Cross-design evaluation history. Snapshots are immutable; each run adds a row.
 export default async function EvaluationsPage() {
@@ -33,14 +35,19 @@ export default async function EvaluationsPage() {
   const dMap = new Map(designList.map((d) => [d.id, d]));
 
   return (
-    <main className="mx-auto max-w-6xl p-6">
-      <h1 className="text-2xl font-bold">Evaluations</h1>
+    <main className="mx-auto max-w-6xl space-y-4 p-6">
+      <PageHeader
+        eyebrow="Quality gates"
+        title="Evaluations"
+        description="Immutable snapshots — every run is preserved with its evidence."
+      />
       {rows.length === 0 ? (
-        <p className="mt-4 text-sm text-neutral-500">
+        <p className="text-sm text-stone-500">
           No evaluations yet — run one from any design in the studio.
         </p>
       ) : (
-        <table className="mt-4 w-full rounded border bg-white text-sm">
+        <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white shadow-card">
+        <table className="w-full text-sm">
           <thead>
             <tr className="border-b text-left text-neutral-500">
               <th className="px-3 py-2">Design</th>
@@ -69,9 +76,7 @@ export default async function EvaluationsPage() {
                   </td>
                   <td>V{v?.versionNumber ?? "—"}</td>
                   <td>
-                    <span className="rounded border px-2 py-0.5 text-xs font-medium">
-                      {e.overallStatus?.replace(/_/g, " ")}
-                    </span>
+                    <StatusBadge value={e.overallStatus} />
                   </td>
                   <td className="text-xs">{e.culturalStatus?.replace(/_/g, " ")}</td>
                   <td className="text-xs">{e.requirementStatus?.replace(/_/g, " ")}</td>
@@ -84,6 +89,7 @@ export default async function EvaluationsPage() {
             })}
           </tbody>
         </table>
+        </div>
       )}
     </main>
   );

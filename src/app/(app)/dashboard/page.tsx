@@ -3,6 +3,10 @@ import { and, avg, count, desc, eq, isNull, notInArray } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { costEstimates, designs, projects } from "@/lib/db/schema";
 import { getSessionUser } from "@/lib/auth/session";
+import StatusBadge from "@/components/status/StatusBadge";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
+import PageHeader from "@/components/ui/PageHeader";
 
 // md/01 §7 dashboard: statistics, recent projects, quick actions, review queue.
 export default async function DashboardPage() {
@@ -54,85 +58,86 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <main className="mx-auto max-w-6xl p-6">
-      <h1 className="text-2xl font-bold">
-        Welcome back{user?.displayName ? `, ${user.displayName}` : ""}
-      </h1>
+    <main className="mx-auto max-w-6xl space-y-6 p-6">
+      <PageHeader
+        eyebrow="Design workspace"
+        title={`Welcome back${user?.displayName ? `, ${user.displayName}` : ""}`}
+        description="Track projects from cultural research to final approval."
+        actions={<Button href="/projects/new" variant="accent">+ New Project</Button>}
+      />
 
-      <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         {cards.map((c) => (
-          <div key={c.label} className="rounded border bg-white p-4">
-            <p className="text-xs uppercase tracking-widest text-neutral-500">{c.label}</p>
-            <p className="mt-1 text-2xl font-bold">{c.value}</p>
+          <div key={c.label} className="rounded-xl border border-stone-200 border-t-4 border-t-brass-500 bg-white p-4 shadow-card">
+            <p className="text-xs font-semibold uppercase tracking-widest text-stone-500">{c.label}</p>
+            <p className="mt-1 font-display text-3xl text-ink-950">{c.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-2 text-sm">
-        <Link href="/projects/new" className="rounded bg-black px-4 py-2 text-white">
-          + New Project
-        </Link>
-        <Link href="/culture" className="rounded border bg-white px-4 py-2">
-          Browse Cultural Knowledge
-        </Link>
-        <Link href="/materials" className="rounded border bg-white px-4 py-2">
-          Materials & Costs
-        </Link>
-        <Link href="/design-studio" className="rounded border bg-white px-4 py-2">
-          Saved Designs
-        </Link>
+      <div className="flex flex-wrap gap-2 text-sm">
+        <Button href="/culture" variant="secondary">Browse Cultural Knowledge</Button>
+        <Button href="/materials" variant="secondary">Materials & Costs</Button>
+        <Button href="/design-studio" variant="secondary">Saved Designs</Button>
       </div>
 
-      <div className="mt-8 grid gap-6 md:grid-cols-2">
-        <section>
-          <h2 className="font-semibold">Recent Projects</h2>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card eyebrow="Pipeline" title="Recent Projects">
           {recentProjects.length === 0 ? (
-            <p className="mt-2 text-sm text-neutral-500">No projects yet.</p>
+            <p className="mt-2 text-sm text-stone-500">
+              No projects yet. <Link href="/projects/new" className="font-medium text-ink-800 underline underline-offset-2">Create your first project</Link>.
+            </p>
           ) : (
-            <table className="mt-2 w-full rounded border bg-white text-sm">
+            <table className="mt-2 w-full text-sm">
               <thead>
-                <tr className="border-b text-left text-neutral-500">
-                  <th className="px-3 py-2">Project</th>
+                <tr className="border-b border-stone-200">
+                  <th>Project</th>
                   <th>Status</th>
-                  <th className="px-3">Updated</th>
+                  <th>Updated</th>
                 </tr>
               </thead>
               <tbody>
                 {recentProjects.map((p) => (
-                  <tr key={p.id} className="border-b">
-                    <td className="px-3 py-2">
-                      <Link href={`/projects/${p.id}`} className="underline">
+                  <tr key={p.id}>
+                    <td>
+                      <Link href={`/projects/${p.id}`} className="font-medium text-ink-800 underline underline-offset-2">
                         {p.name}
                       </Link>
                     </td>
                     <td>
-                      <span className="rounded border px-2 py-0.5 text-xs">{p.status}</span>
+                      <StatusBadge value={p.status} />
                     </td>
-                    <td className="px-3 text-neutral-500">{p.updatedAt?.toLocaleDateString()}</td>
+                    <td className="text-stone-500">{p.updatedAt?.toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
-        </section>
+        </Card>
 
-        <section>
-          <h2 className="font-semibold">Review Queue</h2>
+        <Card
+          eyebrow="Attention"
+          title="Review Queue"
+          action={<Button href="/evaluations" variant="ghost" size="sm">All evaluations →</Button>}
+        >
           {reviewQueue.length === 0 ? (
-            <p className="mt-2 text-sm text-neutral-500">Nothing awaiting review.</p>
+            <p className="mt-2 text-sm text-stone-500">Nothing awaiting review.</p>
           ) : (
             <ul className="mt-2 space-y-2 text-sm">
               {reviewQueue.map((d) => (
-                <li key={d.id} className="rounded border bg-white px-3 py-2">
-                  <Link href={`/design-studio/${d.id}`} className="font-medium underline">
-                    {d.name ?? d.designCode}
-                  </Link>
-                  <span className="text-neutral-500"> · {d.project.name}</span>
+                <li key={d.id} className="flex items-center justify-between gap-2 rounded-lg border border-brass-200 bg-brass-50 px-3 py-2">
+                  <div className="min-w-0">
+                    <Link href={`/design-studio/${d.id}`} className="font-medium text-ink-900 underline underline-offset-2">
+                      {d.name ?? d.designCode}
+                    </Link>
+                    <span className="text-stone-500"> · {d.project.name}</span>
+                  </div>
+                  <StatusBadge value="REVIEW_REQUIRED" />
                 </li>
               ))}
             </ul>
           )}
-        </section>
+        </Card>
       </div>
     </main>
   );

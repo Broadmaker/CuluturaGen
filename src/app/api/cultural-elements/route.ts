@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { and, desc, eq, ilike, inArray, or } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db/client";
 import {
@@ -10,6 +10,7 @@ import {
 import { getSessionUser } from "@/lib/auth/session";
 import { ELEMENT_CATEGORIES } from "@/lib/culture/constants";
 import { CultureService } from "@/server/services/culture/CultureService";
+import { hybridSearch } from "@/lib/retrieval/hybrid";
 
 const elementSchema = z.object({
   name: z.string().min(1).max(255),
@@ -28,6 +29,8 @@ const elementSchema = z.object({
 });
 
 // md/08 §18 search: name / category / status / culture + verified-only.
+// With q: hybrid ranked retrieval (keyword + full-text + graph, md/04 §73);
+// without q: recency order (unchanged legacy behavior).
 export async function GET(req: Request) {
   const user = await getSessionUser().catch(() => null);
   if (!user) return NextResponse.json({ ok: false }, { status: 401 });
@@ -38,6 +41,28 @@ export async function GET(req: Request) {
   const status = sp.get("status");
   const cultureId = sp.get("cultureId");
   const verifiedOnly = sp.get("verifiedOnly") === "1";
+  const filters = {
+    category: category || undefined,
+    status: status || undefined,
+    verifiedOnly,
+    cultureId: cultureId || undefined,
+  };
+
+  if (q) {
+    const hits = await hybridSearch(q, filters, 100);
+    const retrieval: Record<string, { score: number; via: string[] }> = {};
+    for (const h of hits) {
+      retrieval[h.element.id] = {
+        score: Math.round(h.score * 1000) / 1000,
+        via: h.via,
+      };
+    }
+    return NextResponse.json({
+      ok: true,
+      data: hits.map((h) => h.element),
+      retrieval,
+    });
+  }
 
   const cultureLinkedIds = cultureId
     ? CultureService.elementIdsForCulture(cultureId)
@@ -45,12 +70,6 @@ export async function GET(req: Request) {
 
   const rows = await db.query.culturalElements.findMany({
     where: and(
-      q
-        ? or(
-            ilike(culturalElements.name, `%${q}%`),
-            ilike(culturalElements.description, `%${q}%`),
-          )
-        : undefined,
       category ? eq(culturalElements.category, category) : undefined,
       verifiedOnly
         ? eq(culturalElements.validationStatus, "VERIFIED")

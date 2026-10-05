@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db/client";
-import { auditLogs, bodyProfiles } from "@/lib/db/schema";
+import { aiJobs, auditLogs, bodyProfiles, fileAssets } from "@/lib/db/schema";
 import { getSessionUser } from "@/lib/auth/session";
+import { deleteStorageFile } from "@/lib/storage";
 import { BODY_FIELDS } from "@/lib/brief/constants";
 
 const measure = z.number().positive().max(500).nullable().optional();
@@ -62,4 +63,56 @@ export async function PATCH(
     entityId: updated.id,
   });
   return NextResponse.json({ ok: true, data: updated });
+}
+
+// Reject a vision estimate: removes the ESTIMATED snapshot and its reference
+// photo (privacy: deletion capability, md/02 §33). Manual measurement history
+// is preserved and cannot be deleted here.
+export async function DELETE(
+  _req: Request,
+  { params }: { params: { id: string; bodyId: string } },
+) {
+  const user = await getSessionUser().catch(() => null);
+  if (!user) return NextResponse.json({ ok: false }, { status: 401 });
+
+  const existing = await db.query.bodyProfiles.findFirst({
+    where: and(eq(bodyProfiles.id, params.bodyId), eq(bodyProfiles.projectId, params.id)),
+  });
+  if (!existing) return NextResponse.json({ ok: false, error: "Not found." }, { status: 404 });
+  if (existing.measurementSource !== "COMPUTER_VISION" && existing.measurementSource !== "ESTIMATED") {
+    return NextResponse.json(
+      { ok: false, code: "ESTIMATE_DELETE_FORBIDDEN", error: "Only vision estimates can be deleted here — manual history is preserved." },
+      { status: 422 },
+    );
+  }
+
+  // Trace the estimate back to its analysis job for the linked reference photo.
+  const jobs = await db.query.aiJobs.findMany({
+    where: and(eq(aiJobs.projectId, params.id), eq(aiJobs.jobType, "BODY_ANALYSIS")),
+    orderBy: desc(aiJobs.createdAt),
+    limit: 50,
+  });
+  for (const job of jobs) {
+    const out = job.outputPayload as { profileId?: string; assetId?: string } | null;
+    if (out?.profileId !== existing.id || !out.assetId) continue;
+    const [asset] = await db
+      .delete(fileAssets)
+      .where(and(eq(fileAssets.id, out.assetId), eq(fileAssets.projectId, params.id)))
+      .returning();
+    if (asset?.storageUrl?.startsWith("/api/files/")) {
+      await deleteStorageFile(asset.storageUrl.slice("/api/files/".length));
+    }
+    break;
+  }
+
+  await db
+    .delete(bodyProfiles)
+    .where(and(eq(bodyProfiles.id, existing.id), eq(bodyProfiles.projectId, params.id)));
+  await db.insert(auditLogs).values({
+    userId: user.id,
+    action: "PROJECT_UPDATED",
+    entityType: "BodyProfile",
+    entityId: existing.id,
+  });
+  return NextResponse.json({ ok: true });
 }

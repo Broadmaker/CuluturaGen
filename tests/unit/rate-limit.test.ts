@@ -25,14 +25,16 @@ describe("checkRateLimit", () => {
     expect(checkRateLimit("b", 1, 60_000).allowed).toBe(true);
   });
 
-  it("defaults match §116 (30/min auth, 10/h gen, 20/h refine)", () => {
+  it("defaults match §116 (30/min auth, 10/h gen, 20/h refine, 20/h vision)", () => {
     delete process.env.RATE_LIMIT_AUTH_PER_MIN;
     delete process.env.RATE_LIMIT_AI_GENERATE_PER_HOUR;
     delete process.env.RATE_LIMIT_AI_REFINE_PER_HOUR;
+    delete process.env.RATE_LIMIT_VISION_PER_HOUR;
     expect(rateLimitDefaults()).toEqual({
       authPerMin: 30,
       aiGeneratePerHour: 10,
       aiRefinePerHour: 20,
+      visionAnalyzePerHour: 20,
     });
   });
 

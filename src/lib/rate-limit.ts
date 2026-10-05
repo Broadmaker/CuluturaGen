@@ -12,6 +12,8 @@ export function rateLimitDefaults() {
     // AI generation (§116: 10/hour/user) and refinement (20/hour/user).
     aiGeneratePerHour: Number(process.env.RATE_LIMIT_AI_GENERATE_PER_HOUR ?? 10),
     aiRefinePerHour: Number(process.env.RATE_LIMIT_AI_REFINE_PER_HOUR ?? 20),
+    // Body vision analysis is an expensive external call like generation.
+    visionAnalyzePerHour: Number(process.env.RATE_LIMIT_VISION_PER_HOUR ?? 20),
   };
 }
 

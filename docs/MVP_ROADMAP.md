@@ -1,5 +1,9 @@
 # MVP Roadmap — derived from md/01 §50, md/02 §52, md/03 §74–76, md/08 §126
 
+> 🛑 **OPEN ENVIRONMENT ISSUE (2026-10-05, details at bottom): generated
+> files (`node_modules` package bodies, `.next` build output) vanish within
+> minutes on this dev machine. Workaround inside — code is unaffected.**
+
 ## MVP 1 — Application Foundation ✅ built + verified
 - [x] Next.js + TS + Tailwind shell, layout, dashboard/projects/culture/studio pages
 - [x] Drizzle schema (all 32 MVP tables) + migrations, seed roles + admin, `.env.example`
@@ -176,8 +180,127 @@
 - [x] 3 unit + 1 integration tests (verdicts incl. sourced/unsourced/unknown
   vs real DB); suite 77/77; all 9 smokes exit 0
 
+## MVP 8 — Computer Vision ✅ built + verified (mock-first, md/01 §15)
+- [x] VisionProvider interface (`src/lib/vision/provider.ts`, env-selected,
+  mock default / live throws until implemented) + deterministic MockVisionProvider
+  (hash-seeded plausible estimates, weight omitted, confidence 0.62 marker)
+  + pure upload validation (magic-byte sniff, MIME allowlist, size cap)
+- [x] `POST /api/projects/[id]/body/analysis` (multipart, consent=yes required
+  → 422 BODY_CONSENT_REQUIRED, auth + per-user hourly rate limit): saves
+  reference photo (`storage/projects/uploads`, file_assets BODY_IMAGE +
+  checksum), ai_jobs BODY_ANALYSIS QUEUED→COMPLETED/FAILED, body_profiles row
+  COMPUTER_VISION + confidence, designerVerified=false, audit trail
+- [x] Estimates labeled ESTIMATED everywhere (form badge, analysis panel,
+  image preview); accept = PATCH designerVerified, correct = PATCH values in
+  the existing form, reject = DELETE estimate + photo + asset (manual history
+  protected → 422); evaluation already flags non-MANUAL sources for review
+- [x] BodyAnalysisPanel on the body page + imageUrl linkage via job output;
+  8 unit tests (incl. fixed rate-limit defaults expectation); smoke-vision.mjs
+  12/12 vs live server, smoke-mvp3 still green; suite 85/85
+
+## Phase 2 — Hybrid retrieval ✅ built + verified (md/04 §72–74)
+- [x] pgvector NOT installed in this Postgres (checked `pg_available_extensions`)
+  → native path: `search_vector` tsvector column + GIN index + insert/update
+  trigger with A/B/C field weights (md/03 §61) via migration 0003; 22/22
+  backfilled; dense embeddings + pgvector stay a documented additive upgrade
+  (fusion already accepts optional vector scores)
+- [x] `src/lib/retrieval/hybrid.ts`: exact-name + keyword + full-text
+  (ts_rank_cd) + one-hop graph expansion, fused with VERIFIED-first status
+  weights (§74) and per-hit `via` evidence (§73); shared by the search API
+  (`retrieval` map in response) and the culture page (match captions)
+- [x] Bugs found by tests: drizzle relational alias broke a raw fragment
+  (moved candidate selection to standalone SQL); `sql.join` needs an explicit
+  separator (`IN ($2$3)` → 42601)
+- [x] 6 unit + 6 integration tests (self-cleaning probes prove symbolism-only
+  full-text hit, exact-first, graph expansion, filters); read-only
+  smoke-retrieval.mjs 10/10; smoke-mvp2 still exit 0; suite 97/97
+
+## Production readiness ✅ core done (md/10 §153–154, image stays mock)
+- [x] Mock image stays: OpenAIProvider fails loudly without keys, vision live
+  throws until implemented — attaching live later = set env + keys, no code
+  change (`AI_PROVIDER`, `VISION_PROVIDER`, `*_API_KEY` all in `.env.example`)
+- [x] Middleware covers `/api/*`: X-Request-ID in/out (md/09 §7), strict
+  same-origin CORS (deny by default, `ALLOWED_ORIGINS` allowlist, evil-origin
+  preflight → 403), JSON API access log; never redirects API calls
+- [x] Security headers in `next.config.mjs` (nosniff, SAMEORIGIN,
+  referrer-policy, permissions-policy, HSTS — TLS terminates at proxy)
+- [x] `GET /api/health` (unauthenticated): DB latency + storage writability +
+  provider names only, 200/503; `src/lib/api/{cors,errors,log}.ts` (safe
+  envelope hides detail in prod, recursive secret redaction)
+- [x] `src/app/error.tsx` + `global-error.tsx` (no internals on screen);
+  `scripts/db-backup.mjs` (pg_dump custom format + storage copy, retention
+  prune, restore printed; verified: 310 KB dump, 181 TOC entries,
+  `pg_restore --list` clean — also strips Prisma `?schema=` from the URL)
+- [x] 8 unit + 1 integration tests; read-only smoke-prod.mjs 10/10; full
+  battery re-run after middleware change: all 9 legacy smokes exit 0 with
+  zero FAILs + vision 12/12 + retrieval 10/10; suite 106/106
+- [ ] Still deployment-side (needs infra, not code): TLS certs, S3-compatible
+  storage move, Sentry DSN + Redis rate limits for multi-instance
+
+## Deployment ✅ shippable (compose + standalone + prod migrate)
+- [x] `output: standalone` + multi-stage Dockerfile (migrate → serve,
+  healthcheck on `/api/health`) + `.dockerignore`
+- [x] `docker-compose.yml`: pgvector/pgvector:pg17 (vector extension ready,
+  no future DB rebuild) + app + pgdata/storage/backups volumes; mock AI
+  default, live via env only
+- [x] `scripts/migrate-prod.mjs` (no drizzle-kit in image): journal-order
+  apply, statement-breakpoint split, `__prod_migrations` tracking, adopts
+  drizzle-kit's history on dev DBs; verified: fresh scratch DB 4/4 applied
+  (35 tables, GIN index, 4 tracked), dev DB adopts + idempotent re-runs,
+  scratch dropped afterwards
+- [x] Standalone server booted locally against real DB: `/api/health`
+  healthy (db 175 ms, storage ok, mock/mock); suite 106/106
+
+## UI polish ✅ built, static-verified (md/08 §5, §68, §76–77, §113)
+- [x] Shared status system: `statusTone()` (40+ states, icon + label, never
+  color alone) + `<StatusBadge/>`; ValidationBadge + PriorityBadge re-based
+  on it (same output); ad-hoc spans migrated on dashboard, projects, admin
+  users, materials, evaluations, cost + evaluation panels, body form
+- [x] `(app)/loading.tsx` skeleton (no more blank transitions), global
+  `not-found.tsx` (guides back to workflow), active-section nav
+  (`NavLinks`, aria-current, desktop + mobile)
+- [x] 4 unit tests; typecheck clean; full build green twice (route tables
+  incl. new loading/error/not-found)
+- [x] Live-verified 2026-10-05: custom 404 renders, health healthy; full
+  battery — all 12 smokes exit 0, zero FAILs (mvp1-7, reports, audit,
+  vision, retrieval, prod); 110/110 vitest
+
+## Studio UX pass ✅ built + live-verified (md/08 §8, §36–37, §53)
+- [x] Full project breadcrumb (Projects / name / Designs / Studio / Vn),
+  prev/next version links, any-pair compare via zero-JS GET form (was
+  min-vs-max link only), version list + job list on shared StatusBadges
+  (null-safe provider/model), HUMAN_APPROVED tone, stale "MVP 5/6" copy fixed
+- [x] Live-verified in the same 12-smoke battery (mvp6/mvp7 cover studio),
+  zero FAILs; suite 110/110
+
+## Professional theme ✅ built + live-served (heritage-lab identity)
+- [x] Tokens in `tailwind.config.ts` (ink, brass, paper, display serif,
+  card/pop shadows) + `globals.css` (unified table style, `.input`,
+  brass focus + selection)
+- [x] Primitives: `Button` (primary/accent/secondary/ghost/danger),
+  `Card` (eyebrow + serif title + action), `PageHeader`
+- [x] Applied: ink sidebar with brass brand mark + active-section NavLinks,
+  split login (brand panel + pipeline), dashboard (brass-topped stat cards,
+  review queue), studio (cards, serif sections, themed header), culture
+  cards, PageHeaders + `.input` + card tables on projects/materials/
+  evaluations/culture
+- [x] Live-served: all 12 smokes exit 0, zero FAILs on themed build
+
+## 🛑 Environment issue — OPEN: dev-machine file deletion (2026-10-05)
+- **Symptom:** `node_modules/<pkg>` bodies (Next, React, …) and `.next`
+  build output disappear minutes after install/build → `next dev` dies with
+  `MODULE_NOT_FOUND`, servers can't boot. Code, git tree, DB all unaffected.
+- **Ruled out:** Defender (exclusion for this path confirmed present via
+  `(Get-MpPreference).ExclusionPath`, no detections logged, no scheduled
+  scan running); no cleaner processes or suspicious scheduled tasks found.
+- **Workaround that works:** reinstall + boot + verify in ONE fast chain
+  (outruns the deleter) — full 12-smoke battery passed this way twice.
+- **Owner actions:** (a) move the repo off Desktop (e.g. `C:\dev\Cultural`)
+  to test the location hypothesis; (b) otherwise file-audit tooling with
+  admin rights to catch the deleting process.
+
 ## Deferred (md/01 §51)
-Computer vision (after core works), 3D/AR, pattern generation, marketplace,
+3D/AR, pattern generation, marketplace,
 supplier integration, mobile app.
 
 ## Definition of done (DB): md/03 §84. UX acceptance: md/08 §125.

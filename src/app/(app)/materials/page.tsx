@@ -4,6 +4,9 @@ import { db } from "@/lib/db/client";
 import { materials } from "@/lib/db/schema";
 import { MATERIAL_CATEGORIES } from "@/lib/cost/constants";
 import NewMaterialForm from "@/components/materials/NewMaterialForm";
+import StatusBadge from "@/components/status/StatusBadge";
+import Button from "@/components/ui/Button";
+import PageHeader from "@/components/ui/PageHeader";
 
 // md/08 §33 material library.
 export default async function MaterialsPage({
@@ -29,23 +32,28 @@ export default async function MaterialsPage({
   }));
 
   return (
-    <main className="mx-auto max-w-6xl p-6">
-      <h1 className="text-2xl font-bold">Materials</h1>
-      <form method="get" className="mt-4 flex flex-wrap gap-2 text-sm">
-        <input name="q" defaultValue={q ?? ""} placeholder="Search materials…" className="rounded border px-3 py-1.5" />
-        <select name="category" defaultValue={category ?? ""} className="rounded border px-3 py-1.5">
+    <main className="mx-auto max-w-6xl space-y-4 p-6">
+      <PageHeader
+        eyebrow="Costing"
+        title="Materials"
+        description="Supplier prices feed the deterministic cost engine — append-only history."
+      />
+      <form method="get" className="flex flex-wrap gap-2 text-sm">
+        <input name="q" defaultValue={q ?? ""} placeholder="Search materials…" className="input w-auto" />
+        <select name="category" defaultValue={category ?? ""} className="input w-auto">
           <option value="">All categories</option>
           {MATERIAL_CATEGORIES.map((c) => (
             <option key={c} value={c}>{c}</option>
           ))}
         </select>
-        <button type="submit" className="rounded border px-3 py-1.5">Search</button>
+        <Button type="submit" variant="secondary" size="sm">Search</Button>
       </form>
 
       {data.length === 0 ? (
         <p className="mt-6 text-sm text-neutral-500">No materials yet — add the first below.</p>
       ) : (
-        <table className="mt-4 w-full rounded border bg-white text-sm">
+        <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white shadow-card">
+        <table className="w-full text-sm">
           <thead>
             <tr className="border-b text-left text-neutral-500">
               <th className="px-3 py-2">Material</th>
@@ -68,17 +76,20 @@ export default async function MaterialsPage({
                     : <span className="text-amber-700">⚠ no price</span>}
                 </td>
                 <td>
-                  <span className="rounded border px-2 py-0.5 text-xs">{m.availabilityStatus ?? "UNKNOWN"}</span>
+                  <StatusBadge value={m.availabilityStatus ?? "UNKNOWN"} />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        </div>
       )}
 
-      <section className="mt-8 rounded border bg-white p-4">
-        <h2 className="font-semibold">Add material</h2>
+      <section className="rounded-xl border border-stone-200 bg-white p-5 shadow-card">
+        <h2 className="font-display text-lg text-ink-950">Add material</h2>
+        <div className="mt-2">
         <NewMaterialForm />
+        </div>
       </section>
     </main>
   );

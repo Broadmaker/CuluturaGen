@@ -1,3 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  ::selection {
+    background: #f5ead0;
+  }
+  :focus-visible {
+    outline: 2px solid #b9861a;
+    outline-offset: 2px;
+  }
+  /* Unified data tables (dashboard, projects, materials, evaluations, admin). */
+  table thead th {
+    @apply px-3 py-2 text-left text-xs font-semibold uppercase tracking-widest text-stone-500;
+  }
+  table tbody td {
+    @apply px-3 py-2;
+  }
+  table tbody tr {
+    @apply border-b border-stone-100 transition-colors last:border-0 hover:bg-paper;
+  }
+}
+
+@layer components {
+  /* Form controls — apply explicitly (never to checkboxes/radios). */
+  .input {
+    @apply w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-stone-400 focus:border-brass-500 focus:outline-none focus:ring-2 focus:ring-brass-200;
+  }
+  select.input {
+    @apply pr-8;
+  }
+}
