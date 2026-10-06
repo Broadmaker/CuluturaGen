@@ -22,24 +22,23 @@ export interface VisionProvider {
 }
 
 import { MockVisionProvider } from "./providers/mock";
+import { OpenAIVisionProvider } from "./providers/openai";
 
 // Selected once per process from env. Mock is the safe default ($0, offline,
-// deterministic). A live provider plugs in here behind VISION_PROVIDER=live
-// with VISION_API_KEY — no call-site changes.
+// deterministic). VISION_PROVIDER=openai selects the live OpenAI vision
+// provider ("live" is accepted as an alias for the same); no call-site
+// changes — both implement this interface.
 let cached: VisionProvider | null = null;
 
 export function getVisionProvider(): VisionProvider {
   if (cached) return cached;
   const which = (process.env.VISION_PROVIDER || "mock").toLowerCase();
-  cached = which === "live" ? liveProvider() : new MockVisionProvider();
+  if (which === "openai" || which === "live") {
+    cached = new OpenAIVisionProvider();
+  } else {
+    cached = new MockVisionProvider();
+  }
   return cached;
-}
-
-function liveProvider(): VisionProvider {
-  // No live implementation yet — fail loudly instead of silently mocking.
-  throw new Error(
-    "VISION_PROVIDER=live is configured but no live vision provider is implemented. Set VISION_PROVIDER=mock.",
-  );
 }
 
 // Test-only escape hatch.

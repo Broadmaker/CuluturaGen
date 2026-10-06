@@ -1992,6 +1992,15 @@ createdAt
 
 Do not store large images directly inside PostgreSQL unless there is a specific reason.
 
+Backend contract (Supabase decision, md/10 §8): `STORAGE_BACKEND=local|s3`
+selects disk vs Supabase Storage (S3 protocol). Both backends share the key
+scheme (`projects/generated|uploads|reports/<id>/<file>`) and the serving
+scheme (`/api/files/<key>`, session-guarded) — flipping the backend moves
+bytes, never URLs or `file_assets` rows. `GET /api/health` reports the
+active backend (`checks.storage.backend`) without secrets. Misconfigured s3
+(missing `STORAGE_URL`/bucket/keys) fails loudly at first use, never with an
+opaque SDK error.
+
 ---
 
 # 82. AUDIT API

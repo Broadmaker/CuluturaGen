@@ -1306,9 +1306,18 @@ Environment variables:
 DATABASE_URL
 AI_API_KEY
 IMAGE_API_KEY
+STORAGE_BACKEND
 STORAGE_URL
+STORAGE_BUCKET
+STORAGE_REGION
+STORAGE_ACCESS_KEY
+STORAGE_SECRET_KEY
 AUTH_SECRET
 ```
+
+Production storage is Supabase Storage via its S3 protocol endpoint
+(`STORAGE_URL=https://<ref>.storage.supabase.co/storage/v1/s3`, bucket
+PRIVATE, server-side S3 keys only). Dev stays `STORAGE_BACKEND=local`.
 
 Never commit secrets into Git.
 

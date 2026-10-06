@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
 import { serverLog } from "@/lib/api/log";
 import { probeStorage } from "@/lib/storage";
+import { getStorageBackend } from "@/lib/storage-config";
 import { getProvider } from "@/lib/ai/provider";
 import { getVisionProvider } from "@/lib/vision/provider";
 
@@ -21,7 +22,9 @@ export async function GET() {
   }
 
   let storageOk = false;
+  let storageBackend = "unknown";
   try {
+    storageBackend = getStorageBackend();
     await probeStorage();
     storageOk = true;
   } catch (err) {
@@ -47,7 +50,7 @@ export async function GET() {
     status: healthy ? "healthy" : "degraded",
     checks: {
       database: dbOk ? { ok: true, latencyMs: dbMs } : { ok: false },
-      storage: { ok: storageOk },
+      storage: { ok: storageOk, backend: storageBackend },
       providers: { ai: aiProvider, vision: visionProvider, mode: "mock-first" },
     },
     uptimeSec: Math.floor(process.uptime()),

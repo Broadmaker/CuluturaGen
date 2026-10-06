@@ -41,6 +41,18 @@ export async function POST(
     return NextResponse.json({ ok: false, error: "Not found." }, { status: 404 });
   }
 
+  let provider;
+  try {
+    provider = getVisionProvider();
+  } catch {
+    // Fail loudly but with a JSON envelope, never an unhandled 500 page:
+    // the deploy has VISION_PROVIDER=openai/live without a key.
+    return NextResponse.json(
+      { ok: false, code: "VISION_MISCONFIGURED", error: "Vision provider is misconfigured." },
+      { status: 503 },
+    );
+  }
+
   let form: FormData;
   try {
     form = await req.formData();
@@ -87,7 +99,7 @@ export async function POST(
     .values({
       projectId: params.id,
       jobType: "BODY_ANALYSIS",
-      provider: getVisionProvider().name,
+      provider: provider.name,
       status: "PROCESSING",
       startedAt: new Date(),
       inputPayload: { clientId, consent: true },
@@ -111,7 +123,7 @@ export async function POST(
       })
       .returning();
 
-    const estimate = await getVisionProvider().analyze(bytes);
+    const estimate = await provider.analyze(bytes);
     const values: Record<string, string | null> = {};
     for (const f of BODY_FIELDS) {
       const v = estimate.measurements[f.key];
@@ -140,7 +152,7 @@ export async function POST(
           profileId: profile.id,
           assetId: asset.id,
           imageUrl: url,
-          provider: getVisionProvider().name,
+          provider: provider.name,
           landmarks: estimate.landmarks,
           confidence: estimate.confidence,
         },

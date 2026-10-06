@@ -286,6 +286,17 @@ Generated reports
 
 Do not store large binary images directly inside ordinary relational records.
 
+Decision (production): Supabase. Managed Postgres (pgvector built in — the
+dense-embeddings retrieval upgrade needs no DB rebuild) + Supabase Storage
+for binaries via its S3 protocol endpoint (`/storage/v1/s3`,
+`@aws-sdk/client-s3`, `forcePathStyle`). `STORAGE_BACKEND=local` (disk,
+default, dev) or `s3` (Supabase, prod) — keys mirror the local relative
+paths, so `file_assets` rows and `/api/files` URLs are backend-independent.
+Bucket stays PRIVATE; reads are proxied through the session-guarded
+`/api/files` route. S3 access keys are server-side only (they bypass RLS by
+design) — RLS is deliberately not adopted; auth stays in-app. Dev remains
+fully local; only prod points at Supabase.
+
 ---
 
 # 9. DEVELOPMENT ENVIRONMENT

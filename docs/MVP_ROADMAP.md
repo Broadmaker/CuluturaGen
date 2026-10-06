@@ -234,8 +234,8 @@
 - [x] 8 unit + 1 integration tests; read-only smoke-prod.mjs 10/10; full
   battery re-run after middleware change: all 9 legacy smokes exit 0 with
   zero FAILs + vision 12/12 + retrieval 10/10; suite 106/106
-- [ ] Still deployment-side (needs infra, not code): TLS certs, S3-compatible
-  storage move, Sentry DSN + Redis rate limits for multi-instance
+- [ ] Still deployment-side (needs infra, not code): TLS certs, Sentry DSN +
+  Redis rate limits for multi-instance
 
 ## Deployment ✅ shippable (compose + standalone + prod migrate)
 - [x] `output: standalone` + multi-stage Dockerfile (migrate → serve,
@@ -326,6 +326,46 @@
   new path too, minutes after a successful production build. Next step is
   file-audit tooling with admin rights to catch the deleting process —
   moving folders will not help.
+
+## Live vision provider ✅ built, static-verified (mock stays default)
+- [x] `OpenAIVisionProvider` (`src/lib/vision/providers/openai.ts`, plain
+  fetch, no SDK): reference photo → Responses API with Strict Structured
+  Outputs → validated estimate; `VISION_PROVIDER=openai` (`live` is an
+  alias), key from `VISION_API_KEY` (falls back to `AI_API_KEY`), model from
+  `VISION_MODEL` (falls back to `AI_MODEL`), timeout via `VISION_TIMEOUT_MS`;
+  fails loudly without a key, mock remains the $0 default
+- [x] Thesis guardrails hold for live output exactly as for mock: pure
+  `parseVisionOutput()`/`sanitizeVisionMeasurements()`
+  (`src/lib/vision/estimate-schema.ts`) — weight can never be stored (not a
+  known key, dropped + named), out-of-range/non-numeric values dropped,
+  confidence clamped 0–1 as a process marker (md/07 §36), everything stays
+  ESTIMATED until a designer accepts/corrects
+- [x] Analysis route hardened: provider misconfiguration returns JSON 503
+  `VISION_MISCONFIGURED` instead of an unhandled 500 (was: throw at job
+  insert); provider resolved once and reused for job + analysis + payload
+- [x] `.env.example` documents the new vars; unit tests cover the parser
+  (valid/out-of-range/weight-drop/invalid-shape), the timeout message, and
+  provider selection (mock default, openai without key throws)
+
+## Supabase storage (Phase A) ✅ built, static-verified (local stays default)
+- [x] Decision: Supabase — managed Postgres (pgvector built in) + Storage via
+  its S3 protocol endpoint (md/10 §8, md/09 §81, md/02 env updated; RLS
+  deliberately not adopted, auth stays in-app, keys server-side only)
+- [x] Backend abstraction: `src/lib/storage-config.ts` (env selection, key
+  sanitizer, config validator that names missing vars) + `src/lib/storage-s3.ts`
+  (`@aws-sdk/client-s3`, `forcePathStyle`, private bucket) behind the stable
+  `src/lib/storage.ts` facade — same signatures, same keys, same
+  `/api/files` URLs on both backends; unknown `STORAGE_BACKEND` and
+  incomplete s3 config fail loudly, traversal keys rejected
+- [x] Reads stay proxied through the session-guarded `/api/files` route (no
+  signed-URL expiry, no access-control change); `GET /api/health` reports
+  `checks.storage.backend`; go-live = create private bucket + S3 keys
+  (Storage → S3 configuration) and set `STORAGE_BACKEND=s3` + vars, no code
+- [x] 7 unit tests (selection/config/keys) + health test asserts local
+  backend; typecheck clean, full suite green, production build green
+- [ ] Deferred: Phase B (prod DB → Supabase, pooler URL, migrate-prod verify,
+  confirm pgvector); `scripts/db-backup.mjs` storage copy covers local
+  only — on s3 rely on Supabase bucket versioning until scripted
 
 ## Deferred (md/01 §51)
 3D/AR, pattern generation, marketplace,
