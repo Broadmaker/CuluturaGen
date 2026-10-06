@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Rendering hygiene: no X-Powered-By fingerprint, default compression on.
+  poweredByHeader: false,
+  compress: true,
   // Slim production image: Dockerfile runs .next/standalone/server.js.
   output: 'standalone',
   experimental: {

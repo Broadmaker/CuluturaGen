@@ -299,6 +299,34 @@
   to test the location hypothesis; (b) otherwise file-audit tooling with
   admin rights to catch the deleting process.
 
+## Dashboard/admin UX refresh ✅ built + live-served (NextAdmin-style flow)
+- [x] Icon sidebar with WORKSPACE / ADMINISTRATION groups (`NavIcons`,
+  `NavItem.icon` + `group`); desktop topbar (breadcrumb, global `q` search
+  → /culture, review-queue bell with live count, user chip)
+- [x] Dashboard: greeting + date header, 4 metric cards (icon tiles, honest
+  "+N this week" captions), 6-step workflow flow, SVG projects-by-status
+  bars + designs-pipeline donut (no chart deps), recent projects + review queue
+- [x] Admin users: role-distribution stat cards, server-side search,
+  role pills, PageHeader + Card; typecheck clean, all pages 200,
+  smoke-mvp1 green on served HTML
+
+## Frontend rendering optimization ✅ built + live-served
+- [x] Shell streams: review-bell is an async server island in `<Suspense>`
+  (`ReviewBell` + fallback, zero layout shift); layout no longer awaits any
+  DB query — sidebar/topbar paint without waiting for page data
+- [x] Dashboard streams: StatRow/ChartsRow/TablesRow async sections with
+  skeleton fallbacks; header + workflow paint first, data fills in
+- [x] Bundle unchanged: production build green, First Load JS shared still
+  87.1 kB, dashboard/admin pages 199 B each (all new UI is server-rendered);
+  `poweredByHeader: false` in next.config
+- [x] Verified post-change: typecheck clean, pages 200, smoke-mvp1 9/9
+
+## 🛑 Environment update (2026-10-06): deleter followed to C:\dev\Cultural
+- Location hypothesis DISPROVEN: `next` + `react` bodies were eaten at the
+  new path too, minutes after a successful production build. Next step is
+  file-audit tooling with admin rights to catch the deleting process —
+  moving folders will not help.
+
 ## Deferred (md/01 §51)
 3D/AR, pattern generation, marketplace,
 supplier integration, mobile app.
