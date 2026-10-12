@@ -4,7 +4,7 @@ const nextConfig = {
   // Rendering hygiene: no X-Powered-By fingerprint, default compression on.
   poweredByHeader: false,
   compress: true,
-  // Slim production image: Dockerfile runs .next/standalone/server.js.
+  // Standalone server output (.next/standalone/server.js) for host-Node deploys.
   output: 'standalone',
   experimental: {
     serverActions: {

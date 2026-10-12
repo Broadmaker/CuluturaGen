@@ -250,6 +250,10 @@
   scratch dropped afterwards
 - [x] Standalone server booted locally against real DB: `/api/health`
   healthy (db 175 ms, storage ok, mock/mock); suite 106/106
+- [x] 2026-10-12: Docker artifacts removed (`Dockerfile`,
+  `docker-compose.yml`, `.dockerignore` — not used); deploy path is host
+  Node running `.next/standalone/server.js` after `migrate-prod.mjs`,
+  healthcheck on `/api/health`. `output: standalone` retained for that.
 
 ## UI polish ✅ built, static-verified (md/08 §5, §68, §76–77, §113)
 - [x] Shared status system: `statusTone()` (40+ states, icon + label, never
