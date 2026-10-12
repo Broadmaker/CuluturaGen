@@ -440,4 +440,17 @@
 3D/AR, pattern generation, marketplace,
 supplier integration, mobile app.
 
+## Thesis demo ✅ built + verified (md/10 §125–126)
+- [x] `scripts/seed-demo.ts` (idempotent on `DEMO-FESTIVAL-01`): full §125
+  loop headless via services — brief (Festival, ₱25,000) + MANUAL body +
+  5 requirements + VERIFIED basket → mock V1 → cost ₱11,770 UNDER_BUDGET →
+  evaluation → ACCEPT reviews → FINAL → FINAL_REPORT PDF; project COMPLETED
+- [x] `docs/THESIS_DEMO.md`: 16-screen 10-minute walkthrough with timings,
+  anticipated questions (mapped to screens), and 4 fallbacks (seeded V1
+  covers a failed live generate); SAMPLE-integrity notes throughout
+- [x] Drive-by fix: admin backfill audit wrote text into a uuid column —
+  now `entityId: null` + counts in `newValue`
+- [x] Verified: first-run full loop green locally, re-run skips cleanly;
+  typecheck clean, 156/156 vitest
+
 ## Definition of done (DB): md/03 §84. UX acceptance: md/08 §125.

@@ -36,7 +36,12 @@ export async function POST(req: Request) {
       userId: user.id,
       action: "EMBEDDINGS_BACKFILLED",
       entityType: "CulturalElement",
-      entityId: `embedded:${result.embedded}/failed:${result.failed}`,
+      entityId: null,
+      newValue: {
+        embedded: result.embedded,
+        failed: result.failed,
+        provider: result.provider,
+      },
     });
     return NextResponse.json({ ok: true, data: result });
   } catch (e) {
