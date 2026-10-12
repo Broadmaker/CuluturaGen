@@ -9,6 +9,7 @@ import type { DesignProvider, ImageResult, SpecResult } from "../provider";
 // (context → jobs → versions → studio) is genuinely exercised with $0 spend.
 export class MockProvider implements DesignProvider {
   readonly name = "mock";
+  readonly models = { spec: "mock", image: "mock" };
 
   async generateSpec(ctx: BuiltContext, c: Constraints): Promise<SpecResult> {
     const approved = ctx.cultural.approved;

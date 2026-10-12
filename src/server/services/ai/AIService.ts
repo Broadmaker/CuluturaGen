@@ -19,6 +19,7 @@ import {
 import { designSpecSchema } from "@/lib/ai/spec-schema";
 import { validateSpecElements } from "@/lib/ai/output-validator";
 import { getProvider } from "@/lib/ai/provider";
+import { checkQuota, recordUsage } from "./AiUsage";
 import { DesignService } from "@/server/services/design/DesignService";
 import { saveGeneratedImage } from "@/lib/storage";
 
@@ -43,6 +44,11 @@ export class AIService {
       columns: { id: true, name: true },
     });
     if (!project) throw Object.assign(new Error("Project not found."), { status: 404 });
+
+    // Daily spend quota (md/10 §159) — checked before any work or rows are
+    // created. Refinements draw from their own quota, not the generation one.
+    const usageKind: "GENERATION" | "REFINEMENT" = opts.baseDesignId ? "REFINEMENT" : "GENERATION";
+    await checkQuota(opts.userId, usageKind);
 
     // Resolve lineage for regenerate/refine.
     let designId = opts.baseDesignId ?? null;
@@ -177,6 +183,21 @@ export class AIService {
 
     // The job record keeps the *validated* spec — what was stored and linked.
     await this.finishJob(specJob.id, { spec, usage });
+    // Spend ledger (md/10 §158): spec tokens are billable even if the image
+    // stage below fails — record them as soon as the stage completes.
+    const specCost = await recordUsage({
+      jobId: specJob.id,
+      userId: opts.userId,
+      projectId: opts.projectId,
+      kind: usageKind,
+      provider: provider.name,
+      model: provider.models.spec,
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      images: 0,
+    });
+    let spendUsd = specCost.usd;
+    let spendUnpriced = specCost.unpriced;
 
     await db
       .update(designVersions)
@@ -230,6 +251,19 @@ export class AIService {
         uploadedBy: opts.userId,
       });
       await this.finishJob(imageJob.id, { url: saved.url, usage: image.usage });
+      const imageCost = await recordUsage({
+        jobId: imageJob.id,
+        userId: opts.userId,
+        projectId: opts.projectId,
+        kind: "IMAGE",
+        provider: provider.name,
+        model: provider.models.image,
+        inputTokens: 0,
+        outputTokens: 0,
+        images: image.usage.images,
+      });
+      spendUsd += imageCost.usd;
+      spendUnpriced = spendUnpriced || imageCost.unpriced;
     } catch (e) {
       // Spec survives image failure (md/08 §121 data preservation).
       await this.failJob(imageJob.id, e);
@@ -246,7 +280,7 @@ export class AIService {
       action: "DESIGN_GENERATED",
       entityType: "Design",
       entityId: designId,
-      newValue: { version: versionNumber, provider: provider.name, droppedUnknown: unknownIds },
+      newValue: { version: versionNumber, provider: provider.name, droppedUnknown: unknownIds, estimatedCostUsd: spendUsd },
     });
 
     const [design] = await db.select().from(designs).where(eq(designs.id, designId));
@@ -259,6 +293,7 @@ export class AIService {
       version: freshVersion,
       provider: provider.name,
       validation: { droppedUnknown: unknownIds, elements: elementVerdicts },
+      spend: { estimatedCostUsd: spendUsd, unpriced: spendUnpriced },
     };
   }
 

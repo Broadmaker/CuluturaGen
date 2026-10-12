@@ -43,6 +43,13 @@
       "when": 1791600000000,
       "tag": "0005_pgvector-embeddings",
       "breakpoints": false
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791700000000,
+      "tag": "0006_cuddly_terror",
+      "breakpoints": true
     }
   ]
 }

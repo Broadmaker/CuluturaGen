@@ -17,6 +17,8 @@ export interface ImageResult {
 // only talks to this interface; mock vs live is an env flag.
 export interface DesignProvider {
   readonly name: string;
+  // Concrete model per stage, for the spend ledger (md/10 §158).
+  readonly models: { spec: string; image: string };
   generateSpec(
     ctx: BuiltContext,
     c: Constraints,

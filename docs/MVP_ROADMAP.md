@@ -453,4 +453,23 @@ supplier integration, mobile app.
 - [x] Verified: first-run full loop green locally, re-run skips cleanly;
   typecheck clean, 156/156 vitest
 
+## AI spend ledger + quotas ✅ built + verified (md/10 §158–159)
+- [x] Migration 0006 `ai_usage` ledger (plain types, universal): job/user/
+  project/kind/provider/model/tokens/images/estimated-USD/unpriced flag
+- [x] Pure `src/lib/ai/pricing.ts`: mock priced $0 (free, not unpriced),
+  gpt-4o-mini token math, gpt-image-1 flat-per-render estimate, unknown
+  models flagged unpriced — costs never invented (md/06 honesty rule)
+- [x] `AiUsage.record()` hooked into both AIService stages (spec tokens
+  recorded even when the image stage fails); per-stage models exposed via
+  `DesignProvider.models`; spend returned on generate + in audit
+- [x] Daily quotas (GENERATION/REFINEMENT/IMAGE, env-configurable, generous
+  defaults 50/100/50) checked before any work; 429 AI_QUOTA_EXCEEDED
+  surfaces through existing route envelopes
+- [x] 8 tests (pricing math, ledger round-trip + cascade cleanup, quota
+  block, safe defaults); throwaway-project probe proved the mock path live
+  (2 jobs COMPLETED, 2 ledger rows $0 priced, quota allows, fully cleaned);
+  typecheck clean, 164/164 vitest
+- [ ] Live OpenAI call still unverified (needs a funded key — one mock-cost
+  generation ≈ $0.05–0.10); flip `AI_PROVIDER=openai`, no code change
+
 ## Definition of done (DB): md/03 §84. UX acceptance: md/08 §125.

@@ -12,6 +12,10 @@ export class OpenAIProvider implements DesignProvider {
   private readonly model: string;
   private readonly imageModel: string;
 
+  get models(): { spec: string; image: string } {
+    return { spec: this.model, image: this.imageModel };
+  }
+
   constructor() {
     const key = process.env.AI_API_KEY || process.env.IMAGE_API_KEY;
     if (!key) throw new Error("AI_API_KEY is not set (AI_PROVIDER=openai).");

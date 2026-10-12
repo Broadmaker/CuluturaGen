@@ -11,6 +11,7 @@ import {
   decimal,
   index,
   inet,
+  integer,
   jsonb,
   pgTable,
   primaryKey,
@@ -483,6 +484,33 @@ export const aiJobs = pgTable("ai_jobs", {
   completedAt: timestamp("completed_at"),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+// AI spend ledger (md/10 §158): one row per provider call that can cost
+// money — who, which project/job, what model, how many tokens/images, and
+// the estimated USD. Mock rows cost $0 (priced, not unpriced); unknown
+// models are flagged unpriced rather than costed with invented rates — the
+// same honesty rule as the production cost engine (md/06).
+export const aiUsage = pgTable(
+  "ai_usage",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    jobId: uuid("job_id")
+      .notNull()
+      .references(() => aiJobs.id, { onDelete: "cascade" }),
+    userId: uuid("user_id"),
+    projectId: uuid("project_id").references(() => projects.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 30 }).notNull(),
+    provider: varchar("provider", { length: 100 }),
+    model: varchar("model", { length: 255 }),
+    inputTokens: integer("input_tokens").notNull().default(0),
+    outputTokens: integer("output_tokens").notNull().default(0),
+    images: integer("images").notNull().default(0),
+    estimatedCostUsd: decimal("estimated_cost_usd", { precision: 12, scale: 6 }).notNull().default("0"),
+    unpriced: boolean("unpriced").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (t) => [index("idx_ai_usage_user_day").on(t.userId, t.createdAt)],
+);
 
 // ---------- 019_cost / 020_items ----------
 export const costEstimates = pgTable("cost_estimates", {
