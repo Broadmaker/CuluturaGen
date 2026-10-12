@@ -4,7 +4,7 @@ import { z } from "zod";
 import { db } from "@/lib/db/client";
 import { aiJobs, auditLogs, bodyProfiles, fileAssets, projects } from "@/lib/db/schema";
 import { getSessionUser } from "@/lib/auth/session";
-import { checkRateLimit, rateLimitDefaults } from "@/lib/rate-limit";
+import { checkRateLimitAsync, rateLimitDefaults } from "@/lib/rate-limit";
 import { saveBodyReferenceImage } from "@/lib/storage";
 import { getVisionProvider } from "@/lib/vision/provider";
 import { sha256Hex, validateBodyImage } from "@/lib/vision/validate";
@@ -21,7 +21,7 @@ export async function POST(
   const user = await getSessionUser().catch(() => null);
   if (!user) return NextResponse.json({ ok: false }, { status: 401 });
 
-  const rl = checkRateLimit(
+  const rl = await checkRateLimitAsync(
     `vision:${user.id}`,
     rateLimitDefaults().visionAnalyzePerHour,
     3_600_000,

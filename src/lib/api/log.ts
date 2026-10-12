@@ -1,5 +1,5 @@
 // Structured server log (md/09 §132). Single JSON line per event to stdout —
-// captured by docker / journald / the host in production. Secrets are
+// captured by the host / journald in production. Secrets are
 // stripped recursively: passwords, tokens, keys, cookies, auth headers must
 // NEVER reach logs (md/09 §132 "Never log").
 
@@ -49,4 +49,14 @@ export function serverLog(
   if (level === "error") console.error(line);
   else if (level === "warn") console.warn(line);
   else console.log(line);
+  // Error monitoring (md/10 §153): Sentry capture on the error path only,
+  // inert without SENTRY_DSN, never throws into the request. Context is the
+  // already-redacted fields — raw error objects never leave this module.
+  if (level === "error") {
+    const context = redact(fields) as Record<string, unknown>;
+    void import("@/lib/monitoring").then(
+      (m) => m.reportError(new Error(event), { ...context, event }),
+      () => {},
+    );
+  }
 }

@@ -25,6 +25,7 @@ describe("health endpoint", () => {
       checks: {
         database: { ok: boolean; latencyMs: number; pgvector: boolean };
         storage: { ok: boolean; backend: string };
+        ratelimit: { store: string };
         providers: { ai: string; vision: string };
       };
     };
@@ -32,8 +33,11 @@ describe("health endpoint", () => {
     expect(body.checks.database.ok).toBe(true);
     expect(body.checks.database.latencyMs).toBeGreaterThanOrEqual(0);
     expect(typeof body.checks.database.pgvector).toBe("boolean");
+    expect(body.checks.ratelimit.store).toMatch(/^(memory|redis)$/);
     expect(body.checks.storage.ok).toBe(true);
-    expect(body.checks.storage.backend).toBe("local");
+    // Backend follows local .env (s3 when Supabase creds are saved) — assert
+    // validity, not a hardcoded value.
+    expect(body.checks.storage.backend).toMatch(/^(local|s3)$/);
     expect(body.checks.providers.ai).toBe("mock");
     expect(body.checks.providers.vision).toBe("mock");
     expect(JSON.stringify(body)).not.toMatch(/password|secret|key/i);

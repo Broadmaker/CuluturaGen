@@ -4,7 +4,7 @@ import { z } from "zod";
 import { db } from "@/lib/db/client";
 import { designs } from "@/lib/db/schema";
 import { getSessionUser } from "@/lib/auth/session";
-import { checkRateLimit, rateLimitDefaults } from "@/lib/rate-limit";
+import { checkRateLimitAsync, rateLimitDefaults } from "@/lib/rate-limit";
 import { AIService } from "@/server/services/ai/AIService";
 import { DesignService } from "@/server/services/design/DesignService";
 
@@ -18,7 +18,7 @@ export async function POST(
   if (!user) return NextResponse.json({ ok: false }, { status: 401 });
 
   // md/09 §116: refinement quota (20/hour/user, configurable).
-  const rl = checkRateLimit(
+  const rl = await checkRateLimitAsync(
     `ai-refine:${user.id}`,
     rateLimitDefaults().aiRefinePerHour,
     3_600_000,

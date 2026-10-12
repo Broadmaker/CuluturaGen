@@ -6,6 +6,7 @@ import { getStorageBackend } from "@/lib/storage-config";
 import { getProvider } from "@/lib/ai/provider";
 import { getVisionProvider } from "@/lib/vision/provider";
 import { isPgVectorAvailable } from "@/lib/retrieval/pgvector";
+import { getRateLimitStore } from "@/lib/rate-limit";
 
 // Liveness + dependency checks for load balancers and monitors (md/10 §153).
 // Unauthenticated by design; exposes provider NAMES only — never keys,
@@ -54,6 +55,7 @@ export async function GET() {
     checks: {
       database: dbOk ? { ok: true, latencyMs: dbMs, pgvector } : { ok: false, pgvector },
       storage: { ok: storageOk, backend: storageBackend },
+      ratelimit: { store: getRateLimitStore() },
       providers: { ai: aiProvider, vision: visionProvider, mode: "mock-first" },
     },
     uptimeSec: Math.floor(process.uptime()),

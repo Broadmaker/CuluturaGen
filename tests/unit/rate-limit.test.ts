@@ -2,8 +2,11 @@
 import { describe, expect, it } from "vitest";
 import {
   checkRateLimit,
+  checkRateLimitAsync,
   clientIp,
+  getRateLimitStore,
   rateLimitDefaults,
+  resetRateLimitClient,
   resetRateLimits,
 } from "@/lib/rate-limit";
 
@@ -45,8 +48,34 @@ describe("checkRateLimit", () => {
   });
 });
 
-describe("clientIp", () => {
-  const req = (headers: Record<string, string>) =>
+describe("checkRateLimitAsync (memory path)", () => {
+  it("mirrors the sync limiter when REDIS_URL is unset", async () => {
+    delete process.env.REDIS_URL;
+    resetRateLimits();
+    expect(getRateLimitStore()).toBe("memory");
+    for (let i = 0; i < 2; i++) {
+      expect((await checkRateLimitAsync("async-k", 2, 60_000)).allowed).toBe(true);
+    }
+    const blocked = await checkRateLimitAsync("async-k", 2, 60_000);
+    expect(blocked.allowed).toBe(false);
+    expect(blocked.retryAfterSec).toBeGreaterThan(0);
+  });
+
+  it("fails open to memory when Redis is unreachable", async () => {
+    process.env.REDIS_URL = "redis://127.0.0.1:9";
+    resetRateLimitClient();
+    resetRateLimits();
+    expect(getRateLimitStore()).toBe("redis");
+    // Closed port → connection fails fast → memory fallback still enforces.
+    expect((await checkRateLimitAsync("fallback-k", 1, 60_000)).allowed).toBe(true);
+    const blocked = await checkRateLimitAsync("fallback-k", 1, 60_000);
+    expect(blocked.allowed).toBe(false);
+    delete process.env.REDIS_URL;
+    resetRateLimitClient();
+  });
+});
+
+describe("clientIp", () => {  const req = (headers: Record<string, string>) =>
     new Request("http://x/", { headers }) as Request;
 
   it("prefers X-Forwarded-For, falls back cleanly", () => {

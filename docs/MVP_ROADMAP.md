@@ -234,8 +234,29 @@
 - [x] 8 unit + 1 integration tests; read-only smoke-prod.mjs 10/10; full
   battery re-run after middleware change: all 9 legacy smokes exit 0 with
   zero FAILs + vision 12/12 + retrieval 10/10; suite 106/106
-- [ ] Still deployment-side (needs infra, not code): TLS certs, Sentry DSN +
-  Redis rate limits for multi-instance
+- [ ] Still infra-side (needs a real environment, not code): TLS
+  termination certs, a real `SENTRY_DSN`, a `REDIS_URL` (e.g. Upstash),
+  Supabase point-in-time restore drill
+
+## Production hardening ✅ built + verified (md/10 §153–154, 2026-10-12)
+- [x] Redis rate limits: `checkRateLimitAsync()` (atomic Lua fixed-window
+  `INCR+PEXPIRE`, quota shared across instances) behind the same call shape;
+  `REDIS_URL` unset keeps the in-memory sliding window; Redis failure fails
+  OPEN with a throttled warn (never 500s users); all 5 route call sites
+  converted; `GET /api/health` reports `checks.ratelimit.store`
+- [x] Sentry: official `@sentry/nextjs` v11 (client/server/edge configs +
+  `src/instrumentation.ts`), strictly DSN-gated — zero bundle impact
+  without one (shared JS still 87.1 kB); `serverLog` error path captures
+  with redacted context via `src/lib/monitoring.ts` (dynamic import, never
+  throws into requests)
+- [x] Backups: `scripts/backup-lib.mjs` (importable, unit-tested) —
+  `resolveDumpUrl()` prefers `DIRECT_URL` (pooler `:6543` breaks pg_dump
+  under PgBouncer); s3 backend writes a versioned-bucket object manifest
+  instead of copying bytes; local copy behavior unchanged
+- [x] 17 new tests (async limiter incl. unreachable-Redis fail-open, Sentry
+  gating via module mock, backup URL/manifest/pagination); health
+  integration is backend-agnostic now (local `.env` carries s3);
+  typecheck clean, 146/146 vitest, production build green
 
 ## Deployment ✅ shippable (compose + standalone + prod migrate)
 - [x] `output: standalone` + multi-stage Dockerfile (migrate → serve,
