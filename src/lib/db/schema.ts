@@ -30,6 +30,12 @@ const tsvector = customType<{ data: string; driverData: string }>({
   },
 });
 
+// NOTE (migration 0005): the `embedding vector(1536)` column is intentionally
+// NOT declared here. `vector` is not a builtin type — declaring it would make
+// every drizzle query on cultural_elements fail on Postgres without the
+// pgvector binaries (local dev). All embedding I/O goes through raw SQL
+// (EmbeddingService, vectorSearch), which degrades gracefully.
+
 // ---------- 001_auth ----------
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),

@@ -5,6 +5,8 @@ import {
   culturalElements,
 } from "@/lib/db/schema";
 import { CultureService } from "@/server/services/culture/CultureService";
+import { getEmbeddingProvider } from "@/lib/embeddings/provider";
+import { isPgVectorAvailable } from "./pgvector";
 
 // Hybrid cultural retrieval (md/04 §72–74, md/05 §95–101).
 //
@@ -20,6 +22,13 @@ import { CultureService } from "@/server/services/culture/CultureService";
 // (embedding column + provider), not a rewrite. Check availability at runtime
 // with isPgVectorAvailable() — retrieval priority follows md/04 §74:
 // VERIFIED first, then context match, then rank.
+//
+// UPDATE (migration 0005): the additive upgrade has landed. cultural_elements
+// now carries an `embedding vector(1536)` column (HNSW cosine index) filled
+// by an explicit admin backfill (POST /api/admin/embeddings/backfill).
+// hybridSearch embeds the query and fuses cosine-similarity scores as the
+// fourth mode — and still degrades to text-only when the extension, the
+// column, or all embeddings are missing (fail-open, never a 500).
 
 export type ElementRow = typeof culturalElements.$inferSelect;
 
@@ -114,6 +123,7 @@ export function fuseCandidates(
 }
 
 function filterConditions(f: RetrievalFilters) {
+
   const cultureLinkedIds = f.cultureId
     ? CultureService.elementIdsForCulture(f.cultureId)
     : undefined;
@@ -128,6 +138,25 @@ function filterConditions(f: RetrievalFilters) {
   ];
 }
 
+// Mode-4 primitive: nearest embedded rows by cosine similarity. Score is
+// clamped cosine similarity in [0, 1] (distance >= 1 carries no signal).
+// Throws when the extension/column is missing — callers treat that as
+// "no vectors" and stay text-only.
+export async function vectorSearch(query: number[], limit = 50): Promise<VectorScores> {
+  const literal = `[${query.join(",")}]`;
+  const rows = (await db.execute(sql`
+    SELECT "id", GREATEST(0, 1 - ("embedding" <=> ${literal}::vector)) AS "score"
+    FROM "cultural_elements"
+    WHERE "embedding" IS NOT NULL
+      AND ("embedding" <=> ${literal}::vector) < 1
+    ORDER BY "embedding" <=> ${literal}::vector
+    LIMIT ${Math.max(1, limit)}
+  `)) as unknown as { rows: { id: string; score: string }[] };
+  const out: VectorScores = {};
+  for (const r of rows.rows ?? []) out[r.id] = Number(r.score);
+  return out;
+}
+
 export async function hybridSearch(
   q: string,
   filters: RetrievalFilters = {},
@@ -136,6 +165,24 @@ export async function hybridSearch(
 ): Promise<RankedElement[]> {
   const needle = `%${q}%`;
   const conds = filterConditions(filters);
+
+  // Mode 4 — dense vectors (additive, fail-open): embed the query and pull
+  // cosine-similarity scores for the nearest embedded rows. Any failure
+  // (no extension, no column, no embeddings, provider down) leaves the
+  // caller-supplied scores untouched and retrieval stays text-only.
+  const fusedScores: VectorScores = { ...vectorScores };
+  try {
+    if (await isPgVectorAvailable()) {
+      const [queryVec] = await getEmbeddingProvider().embed([q]);
+      if (queryVec) {
+        for (const [id, score] of Object.entries(await vectorSearch(queryVec, 50))) {
+          if (!(id in fusedScores)) fusedScores[id] = score;
+        }
+      }
+    }
+  } catch {
+    // Text-only retrieval below.
+  }
 
   // Candidate selection runs as standalone SQL (real table names): a raw
   // fragment inside db.query.* would miss drizzle's relational alias.
@@ -162,6 +209,12 @@ export async function hybridSearch(
     LIMIT 200
   `)) as unknown as { rows: { id: string }[] };
   const ids = (idRows.rows ?? []).map((r) => r.id);
+  // Vector-only hits seed candidates too: without this, Mode 4 could only
+  // re-rank text matches and a query with novel wording would return [].
+  const textIds = new Set(ids);
+  for (const id of Object.keys(fusedScores)) {
+    if (!textIds.has(id)) ids.push(id);
+  }
   if (ids.length === 0) return [];
 
   const candidates = await db.query.culturalElements.findMany({
@@ -180,8 +233,8 @@ export async function hybridSearch(
     element: el,
     textRank: rankById.get(el.id) ?? 0,
     exactName: el.name.trim().toLowerCase() === lowered,
-    keywordHit: true,
-    vectorScore: vectorScores[el.id],
+    keywordHit: textIds.has(el.id),
+    vectorScore: fusedScores[el.id],
   });
   const provisional = fuseCandidates(
     q,

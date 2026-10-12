@@ -198,8 +198,7 @@
   8 unit tests (incl. fixed rate-limit defaults expectation); smoke-vision.mjs
   12/12 vs live server, smoke-mvp3 still green; suite 85/85
 
-## Phase 2 — Hybrid retrieval ✅ built + verified (md/04 §72–74)
-- [x] pgvector NOT installed in this Postgres (checked `pg_available_extensions`)
+## Phase 2 — Hybrid retrieval ✅ built + verified (md/04 §72–74)- [x] pgvector NOT installed in this Postgres (checked `pg_available_extensions`)
   → native path: `search_vector` tsvector column + GIN index + insert/update
   trigger with A/B/C field weights (md/03 §61) via migration 0003; 22/22
   backfilled; dense embeddings + pgvector stay a documented additive upgrade
@@ -214,6 +213,30 @@
 - [x] 6 unit + 6 integration tests (self-cleaning probes prove symbolism-only
   full-text hit, exact-first, graph expansion, filters); read-only
   smoke-retrieval.mjs 10/10; smoke-mvp2 still exit 0; suite 97/97
+
+## Dense embeddings ✅ built + live-verified (md/04 §72–74, 2026-10-12)
+- [x] Migration 0005: `embedding vector(1536)` + HNSW cosine index, guarded
+  by `pg_available_extensions` (no-op on plain Postgres); the column is
+  deliberately NOT in drizzle schema (raw-SQL I/O only — declaring `vector`
+  would break every local query on extension-less Postgres)
+- [x] Provider abstraction (`src/lib/embeddings/provider.ts`, env-selected):
+  deterministic unit-norm MockEmbeddingProvider ($0 default) + dormant
+  OpenAI text-embedding-3-small (plain fetch, fail-loud key/dim checks);
+  pure `elementEmbedText()` (name → alternatives → category → notes)
+- [x] EmbeddingService (availability gate → status → batched backfill with
+  per-row validation, coded 503 `EMBEDDINGS_UNAVAILABLE`) + ADMIN-gated
+  `GET/POST /api/admin/embeddings/backfill` with audit trail
+- [x] Mode 4 in hybridSearch: query embedding → cosine scores fused with
+  `via: ["vector"]` evidence; vector-only hits seed candidates (novel
+  wording no longer returns []); any failure degrades to text-only —
+  search API + culture page upgraded with zero call-site changes
+- [x] Bug found by tests: schema-declared `vector` column broke local
+  inserts (extension-less Postgres) — reverted to raw-SQL I/O
+- [x] 10 unit + 1 integration tests (determinism/norm/dims, provider
+  selection, key fail-fast, graceful 503 locally); live vs Supabase:
+  migrate 0005 applied, SAMPLE backfill 7/7, `verify-embeddings.ts`
+  `"festival attire"` → vector hit + graph expansion; typecheck clean,
+  156/156 vitest
 
 ## Production readiness ✅ core done (md/10 §153–154, image stays mock)
 - [x] Mock image stays: OpenAIProvider fails loudly without keys, vision live
