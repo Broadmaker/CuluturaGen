@@ -469,6 +469,9 @@ supplier integration, mobile app.
   block, safe defaults); throwaway-project probe proved the mock path live
   (2 jobs COMPLETED, 2 ledger rows $0 priced, quota allows, fully cleaned);
   typecheck clean, 164/164 vitest
+- [x] $0 live-path check (no funded key needed): stubbed-fetch suite proves
+  Responses-API parsing + usage extraction, invalid-spec rejection, 401
+  propagation, and image b64 decode; 170/170 vitest
 - [ ] Live OpenAI call still unverified (needs a funded key — one mock-cost
   generation ≈ $0.05–0.10); flip `AI_PROVIDER=openai`, no code change
 
