@@ -13,11 +13,13 @@ import { CultureService } from "@/server/services/culture/CultureService";
 //   Mode 2 — Ranked full-text: native tsvector + ts_rank_cd (md/03 §61).
 //   Mode 3 — Graph: one-hop relationships + culture/community traversal.
 //
-// Dense vector search (pgvector) is NOT active: the extension is not
-// installed in this Postgres. The fusion scorer already accepts an optional
-// vector score per hit, so enabling it later is additive (extension +
-// embedding column + provider), not a rewrite. Retrieval priority follows
-// md/04 §74: VERIFIED first, then context match, then rank.
+// Dense vector search (pgvector) activates where the extension is installed
+// (Supabase ships it built in; migration 0004 enables it, guarded so local
+// Postgres without the binaries keeps working). The fusion scorer accepts an
+// optional vector score per hit, so enabling embeddings later is additive
+// (embedding column + provider), not a rewrite. Check availability at runtime
+// with isPgVectorAvailable() — retrieval priority follows md/04 §74:
+// VERIFIED first, then context match, then rank.
 
 export type ElementRow = typeof culturalElements.$inferSelect;
 

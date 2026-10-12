@@ -2,12 +2,12 @@ import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
 import * as relations from "./relations";
-
-function connectionString(): string {
-  const s = process.env.DATABASE_URL;
-  if (!s) throw new Error("DATABASE_URL is not set");
-  return s;
-}
+import {
+  databaseUrlTlsMode,
+  pgSslForMode,
+  resolveAppDatabaseUrl,
+  resolvePoolMax,
+} from "./database-url";
 
 const globalForDb = globalThis as unknown as {
   pgPool?: Pool;
@@ -15,7 +15,14 @@ const globalForDb = globalThis as unknown as {
 };
 
 function createDb() {
-  const pool = globalForDb.pgPool ?? new Pool({ connectionString: connectionString() });
+  // Supabase Phase B (md/10 §7): sanitized URL (no ?schema=), TLS per
+  // sslmode (encrypted by default on Supabase, verify-full via
+  // DATABASE_SSL=strict), pooler-friendly pool size.
+  const connectionString = resolveAppDatabaseUrl();
+  const ssl = pgSslForMode(databaseUrlTlsMode(connectionString));
+  const pool =
+    globalForDb.pgPool ??
+    new Pool({ connectionString, ssl, max: resolvePoolMax() });
   if (process.env.NODE_ENV !== "production") globalForDb.pgPool = pool;
   return drizzle(pool, { schema: { ...schema, ...relations } });
 }

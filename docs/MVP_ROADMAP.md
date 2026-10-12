@@ -363,8 +363,29 @@
   (Storage → S3 configuration) and set `STORAGE_BACKEND=s3` + vars, no code
 - [x] 7 unit tests (selection/config/keys) + health test asserts local
   backend; typecheck clean, full suite green, production build green
-- [ ] Deferred: Phase B (prod DB → Supabase, pooler URL, migrate-prod verify,
-  confirm pgvector); `scripts/db-backup.mjs` storage copy covers local
+- [x] Phase B (prod DB) ✅ built + live-verified vs dev DB (local stays default):
+  `src/lib/db/database-url.ts` (pure URL policy: strips Prisma `?schema=`,
+  libpq-style TLS modes — Supabase defaults to encrypted `require`,
+  `verify-full` via `DATABASE_SSL=strict`/`?sslmode=verify-full` for strict
+  networks, `DIRECT_URL` wins for migrate, `DATABASE_POOL_MAX` clamped 1–50) wired into `db/client.ts`
+  (conditional `ssl: { rejectUnauthorized: true }`, pooler-friendly pool);
+  `migrate-prod.mjs` uses DIRECT_URL-or-DATABASE_URL + SSL + schema-strip
+  and reports pgvector status (pooler DDL warning logged); migration 0004
+  `CREATE EXTENSION IF NOT EXISTS "vector"` guarded by
+  `pg_available_extensions` (no-op on plain Postgres, enables on Supabase /
+  compose pgvector image);   `GET /api/health` reports
+  `checks.database.pgvector` via `isPgVectorAvailable()`; `.env.example`
+  documents DIRECT_URL/DATABASE_SSL/DATABASE_POOL_MAX; 10 unit tests +
+  health integration asserts the flag; verified live vs real Supabase
+  (Mumbai, 2026-10-12): no-IPv6 network → session pooler `:5432` for
+  migrate (direct `db.*` host is IPv6-only), `tls: require` (network
+  middlebox breaks strict verification), migrate applied 0000–0004
+  (82+1+8+6+1 statements, `pgvector: enabled`), verify-supabase 5/5 PASS
+  (35 tables, trigger, tracking), db:seed roles+admin; typecheck clean,
+  134/134 vitest, production build green (route table + artifacts emitted)
+- [ ] Deferred: dense-embedding columns + provider (fusion already accepts
+  optional vector scores — additive when needed);
+  `scripts/db-backup.mjs` storage copy covers local
   only — on s3 rely on Supabase bucket versioning until scripted
 
 ## Deferred (md/01 §51)

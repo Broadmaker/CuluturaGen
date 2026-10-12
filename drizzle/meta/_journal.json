@@ -29,6 +29,13 @@
       "when": 1791168869479,
       "tag": "0003_clear_alex_power",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791500000000,
+      "tag": "0004_elastic_mantis",
+      "breakpoints": false
     }
   ]
 }

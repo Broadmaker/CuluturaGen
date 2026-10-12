@@ -23,7 +23,7 @@ describe("health endpoint", () => {
       ok: boolean;
       status: string;
       checks: {
-        database: { ok: boolean; latencyMs: number };
+        database: { ok: boolean; latencyMs: number; pgvector: boolean };
         storage: { ok: boolean; backend: string };
         providers: { ai: string; vision: string };
       };
@@ -31,6 +31,7 @@ describe("health endpoint", () => {
     expect(body.ok).toBe(true);
     expect(body.checks.database.ok).toBe(true);
     expect(body.checks.database.latencyMs).toBeGreaterThanOrEqual(0);
+    expect(typeof body.checks.database.pgvector).toBe("boolean");
     expect(body.checks.storage.ok).toBe(true);
     expect(body.checks.storage.backend).toBe("local");
     expect(body.checks.providers.ai).toBe("mock");
