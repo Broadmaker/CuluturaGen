@@ -21,7 +21,7 @@ export default function BodySection({
     ?? null;
 
   return (
-    <div className="rounded border bg-white p-4">
+    <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-card">
       <ClientManager
         projectId={projectId}
         initial={clients}
@@ -29,7 +29,7 @@ export default function BodySection({
         onSelect={setClientId}
       />
       <hr className="my-4" />
-      <h2 className="font-semibold">Measurements</h2>
+      <h2 className="font-display text-lg font-bold text-ink-950">Measurements</h2>
       <BodyProfileForm
         projectId={projectId}
         latest={latest}

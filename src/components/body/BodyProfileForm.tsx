@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BODY_FIELDS, type BodyFieldKey } from "@/lib/brief/constants";
 import StatusBadge from "@/components/status/StatusBadge";
+import Button from "@/components/ui/Button";
 
 export interface BodySnapshot {
   id: string;
@@ -96,26 +97,26 @@ export default function BodyProfileForm({
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <StatusBadge value={latest?.measurementSource ?? "MANUAL"} />
         {(latest?.measurementSource === "COMPUTER_VISION" || latest?.measurementSource === "ESTIMATED") && !latest?.designerVerified && (
-          <span className="rounded border border-amber-700 bg-amber-50 px-2 py-0.5 text-xs text-amber-800">
+          <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800">
             ⚠ ESTIMATED — review required{latest?.confidenceLevel ? ` (confidence ${latest.confidenceLevel})` : ""}
           </span>
         )}
         {latest?.designerVerified ? (
-          <span className="rounded border border-green-700 bg-green-50 px-2 py-0.5 text-xs text-green-800">
+          <span className="rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-xs font-medium text-green-800">
             ✓ DESIGNER VERIFIED
           </span>
         ) : (
-          <span className="rounded border px-2 py-0.5 text-xs">UNVERIFIED</span>
+          <span className="rounded-full bg-ink-50 px-2 py-0.5 text-xs font-medium text-ink-700 ring-1 ring-inset ring-ink-100">UNVERIFIED</span>
         )}
         {historyCount > 0 && (
-          <span className="text-xs text-neutral-500">{historyCount} snapshot(s) kept</span>
+          <span className="text-xs text-ink-500">{historyCount} snapshot(s) kept</span>
         )}
       </div>
       <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3">
         {BODY_FIELDS.map((f) => (
           <div key={f.key}>
-            <label htmlFor={f.key} className="text-sm font-medium">
-              {f.label} <span className="text-neutral-400">({f.unit})</span>
+            <label htmlFor={f.key} className="text-sm font-medium text-ink-700">
+              {f.label} <span className="text-ink-400">({f.unit})</span>
             </label>
             <input
               id={f.key}
@@ -123,32 +124,32 @@ export default function BodyProfileForm({
               value={values[f.key]}
               onChange={(e) => set(f.key as BodyFieldKey, e.target.value)}
               placeholder="—"
-              className="mt-1 w-full rounded border px-3 py-2"
+              className="input mt-1"
             />
           </div>
         ))}
       </div>
       <div className="mt-3">
-        <label htmlFor="notes" className="text-sm font-medium">Notes</label>
-        <textarea id="notes" rows={2} value={notes} onChange={(e) => { setNotes(e.target.value); setSaved(false); }} className="mt-1 w-full rounded border px-3 py-2" />
+        <label htmlFor="notes" className="text-sm font-medium text-ink-700">Notes</label>
+        <textarea id="notes" rows={2} value={notes} onChange={(e) => { setNotes(e.target.value); setSaved(false); }} className="input mt-1" />
       </div>
       <label className="mt-3 flex items-center gap-2 text-sm">
         <input type="checkbox" checked={verified} onChange={(e) => { setVerified(e.target.checked); setSaved(false); }} />
         Designer verified — I checked these measurements
       </label>
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <button onClick={() => save(false)} disabled={pending} className="rounded bg-black px-4 py-2 text-sm text-white disabled:opacity-50">
+        <Button type="button" onClick={() => save(false)} disabled={pending}>
           {pending ? "Saving…" : latest ? "Save corrections" : "Save measurements"}
-        </button>
+        </Button>
         {latest && (
-          <button onClick={() => save(true)} disabled={pending} className="rounded border px-4 py-2 text-sm hover:bg-white disabled:opacity-50">
+          <Button variant="secondary" size="sm" type="button" onClick={() => save(true)} disabled={pending}>
             New session snapshot
-          </button>
+          </Button>
         )}
         {saved && <p className="text-sm text-green-700">Saved.</p>}
       </div>
-      {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
-      <p className="mt-3 text-xs text-neutral-500">
+      {error && <p className="mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      <p className="mt-3 text-xs text-ink-500">
         Snapshots preserve history: POST starts a session, PATCH corrects the latest.
         Vision estimates are labeled by source above and must be designer-verified
         before construction (md/01 §15).

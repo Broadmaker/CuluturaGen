@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
 
 // md/08 §64–65 deliberate final approval with confirmation summary.
 export default function FinalizeButton({
@@ -18,7 +19,7 @@ export default function FinalizeButton({
 
   if (designStatus === "FINAL") {
     return (
-      <span className="rounded border border-green-700 bg-green-50 px-2 py-0.5 text-xs font-medium text-green-800">
+      <span className="rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-xs font-medium text-green-800">
         ✓ FINAL
       </span>
     );
@@ -45,29 +46,29 @@ export default function FinalizeButton({
 
   if (!confirming) {
     return (
-      <button onClick={() => setConfirming(true)} className="rounded bg-black px-3 py-1 text-sm text-white">
+      <Button type="button" onClick={() => setConfirming(true)}>
         Finalize design
-      </button>
+      </Button>
     );
   }
 
   return (
-    <div className="mt-2 rounded border bg-neutral-50 p-3 text-sm">
+    <div className="mt-2 rounded-xl border border-stone-200 bg-ink-50 p-3 text-sm">
       <p className="font-medium">APPROVE FINAL DESIGN?</p>
-      <p className="mt-1 text-neutral-600">
+      <p className="mt-1 text-ink-500">
         This marks the current version as the approved project design. Requires
         a prior evaluation with no unresolved CRITICAL findings. This is a
         deliberate human decision — it cannot be undone except by generating a
         new version.
       </p>
-      {error && <p className="mt-1 text-red-700">{error}</p>}
+      {error && <p className="mt-1 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       <div className="mt-2 flex gap-2">
-        <button onClick={finalize} disabled={pending} className="rounded bg-black px-3 py-1 text-white disabled:opacity-50">
+        <Button type="button" onClick={finalize} disabled={pending}>
           {pending ? "…" : "Confirm approval"}
-        </button>
-        <button onClick={() => setConfirming(false)} className="rounded border px-3 py-1">
+        </Button>
+        <Button variant="secondary" size="sm" type="button" onClick={() => setConfirming(false)}>
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   );

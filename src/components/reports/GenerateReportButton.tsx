@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { REPORT_TYPES } from "@/lib/reports/constants";
+import Button from "@/components/ui/Button";
 
 // NOTE: imports the type list from lib (pure constants) to keep pdfkit
 // server-side only.
@@ -46,21 +47,21 @@ export default function GenerateReportButton({
         <select
           value={reportType}
           onChange={(e) => setReportType(e.target.value)}
-          className="rounded border px-2 py-1"
+          className="input w-auto text-sm py-1.5"
           aria-label="Report type"
         >
           {REPORT_TYPES.map((t) => (
             <option key={t} value={t}>{t.replace(/_/g, " ")}</option>
           ))}
         </select>
-        <button onClick={generate} disabled={pending} className="rounded bg-black px-3 py-1 text-white disabled:opacity-50">
+        <Button type="button" onClick={generate} disabled={pending}>
           {pending ? "Generating…" : "Generate report"}
-        </button>
+        </Button>
       </div>
-      {error && <p className="mt-1 text-red-700">{error}</p>}
+      {error && <p className="mt-1 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {url && (
         <p className="mt-1">
-          <a href={url} className="underline" download>
+          <a href={url} className="font-medium text-ink-800 underline-offset-2 hover:text-brand-600 hover:underline" download>
             Download PDF
           </a>
         </p>

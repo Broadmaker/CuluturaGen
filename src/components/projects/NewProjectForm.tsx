@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
 
 // md/08 §14 create wizard (condensed to one screen for MVP 1:
 // info + cultural context + budget).
@@ -52,7 +53,7 @@ export default function NewProjectForm({
   return (
     <form onSubmit={onSubmit} className="mt-6 max-w-xl space-y-4">
       <div>
-        <label htmlFor="name" className="text-sm font-medium">
+        <label htmlFor="name" className="text-sm font-medium text-ink-700">
           Project name *
         </label>
         <input
@@ -61,11 +62,11 @@ export default function NewProjectForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Festival Attire 2026"
-          className="mt-1 w-full rounded border px-3 py-2"
+          className="input mt-1"
         />
       </div>
       <div>
-        <label htmlFor="description" className="text-sm font-medium">
+        <label htmlFor="description" className="text-sm font-medium text-ink-700">
           Description
         </label>
         <textarea
@@ -73,19 +74,19 @@ export default function NewProjectForm({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
-          className="mt-1 w-full rounded border px-3 py-2"
+          className="input mt-1"
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label htmlFor="culture" className="text-sm font-medium">
+          <label htmlFor="culture" className="text-sm font-medium text-ink-700">
             Culture
           </label>
           <select
             id="culture"
             value={cultureId}
             onChange={(e) => setCultureId(e.target.value)}
-            className="mt-1 w-full rounded border px-3 py-2"
+            className="input mt-1"
           >
             <option value="">Select…</option>
             {cultures.map((c) => (
@@ -95,13 +96,13 @@ export default function NewProjectForm({
             ))}
           </select>
           {cultures.length === 0 && (
-            <p className="mt-1 text-xs text-neutral-500">
+            <p className="mt-1 text-xs text-ink-500">
               No cultures yet — add them in MVP 2.
             </p>
           )}
         </div>
         <div>
-          <label htmlFor="occasion" className="text-sm font-medium">
+          <label htmlFor="occasion" className="text-sm font-medium text-ink-700">
             Occasion
           </label>
           <input
@@ -109,12 +110,12 @@ export default function NewProjectForm({
             value={occasion}
             onChange={(e) => setOccasion(e.target.value)}
             placeholder="Festival"
-            className="mt-1 w-full rounded border px-3 py-2"
+            className="input mt-1"
           />
         </div>
       </div>
       <div>
-        <label htmlFor="budget" className="text-sm font-medium">
+        <label htmlFor="budget" className="text-sm font-medium text-ink-700">
           Target budget (PHP)
         </label>
         <input
@@ -125,21 +126,17 @@ export default function NewProjectForm({
           value={budget}
           onChange={(e) => setBudget(e.target.value)}
           placeholder="30000"
-          className="mt-1 w-full rounded border px-3 py-2"
+          className="input mt-1"
         />
       </div>
       {error && (
-        <p role="alert" className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
           {error}
         </p>
       )}
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded bg-black px-4 py-2 text-sm text-white disabled:opacity-50"
-      >
+      <Button type="submit" disabled={pending}>
         {pending ? "Creating…" : "Create Project"}
-      </button>
+      </Button>
     </form>
   );
 }

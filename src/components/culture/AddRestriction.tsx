@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { RESTRICTION_TYPES } from "@/lib/culture/constants";
+import Button from "@/components/ui/Button";
 
 // Expert-gated restriction composer (md/04 §23).
 export default function AddRestriction({
@@ -63,13 +64,13 @@ export default function AddRestriction({
 
   if (!open) {
     return (
-      <button onClick={() => setOpen(true)} className="mt-2 rounded border px-3 py-1 text-sm hover:bg-white">
+      <Button variant="secondary" size="sm" onClick={() => setOpen(true)} className="mt-2">
         + Add restriction
-      </button>
+      </Button>
     );
   }
 
-  const input = "mt-1 w-full rounded border px-2 py-1 text-sm";
+  const input = "input mt-1 text-sm py-1.5";
 
   return (
     <form onSubmit={submit} className="mt-2 max-w-lg space-y-2 border-t pt-2">
@@ -106,14 +107,14 @@ export default function AddRestriction({
         ))}
       </select>
       <textarea required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Restriction description *" rows={2} className={input} />
-      {error && <p className="text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       <div className="flex gap-2">
-        <button type="submit" disabled={pending} className="rounded bg-black px-3 py-1 text-sm text-white disabled:opacity-50">
+        <Button type="submit" disabled={pending}>
           {pending ? "…" : "Save restriction"}
-        </button>
-        <button type="button" onClick={() => setOpen(false)} className="rounded border px-3 py-1 text-sm">
+        </Button>
+        <Button type="button" variant="secondary" size="sm" onClick={() => setOpen(false)}>
           Cancel
-        </button>
+        </Button>
       </div>
     </form>
   );

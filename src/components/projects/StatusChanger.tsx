@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PROJECT_TRANSITIONS } from "@/server/services/design/ProjectService";
+import Button from "@/components/ui/Button";
 
 // NOTE: imports the transition map from the service for a single source of
 // truth; it is a pure constant with no server-only dependencies.
@@ -46,20 +47,22 @@ export default function StatusChanger({
 
   return (
     <div className="mt-4">
-      <p className="text-sm font-medium">Move to:</p>
+      <p className="text-sm font-medium text-ink-700">Move to:</p>
       <div className="mt-1 flex flex-wrap gap-2">
         {allowed.map((s) => (
-          <button
+          <Button
+            variant="secondary"
+            size="sm"
+            type="button"
             key={s}
             onClick={() => change(s)}
             disabled={pending !== null}
-            className="rounded border px-3 py-1 text-sm hover:bg-white disabled:opacity-50"
           >
             {pending === s ? "…" : s}
-          </button>
+          </Button>
         ))}
       </div>
-      {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
     </div>
   );
 }

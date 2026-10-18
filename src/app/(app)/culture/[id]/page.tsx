@@ -58,36 +58,37 @@ export default async function ElementDetailPage({
   ];
 
   return (
-    <main className="mx-auto max-w-6xl p-6">
-      <p className="text-sm text-neutral-500">
-        <a href="/culture" className="underline">Cultural Knowledge</a> / {detail.elementCode}
+    <main className="w-full p-6">
+      <p className="text-sm font-medium text-ink-500">
+        <a href="/culture" className="text-ink-700 transition hover:text-brand-600">Cultural Knowledge</a>
+        <span className="mx-1.5 text-ink-300">/</span> {detail.elementCode}
       </p>
       <div className="mt-1 flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold">{detail.name}</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight text-ink-950">{detail.name}</h1>
         <ValidationBadge status={detail.validationStatus} />
-        <span className="rounded border bg-white px-2 py-0.5 text-xs">{detail.category}</span>
+        <span className="rounded-full bg-ink-50 px-2 py-0.5 text-xs font-medium text-ink-700 ring-1 ring-inset ring-ink-100">{detail.category}</span>
       </div>
       {detail.alternativeNames && detail.alternativeNames.length > 0 && (
-        <p className="mt-1 text-sm text-neutral-500">
+        <p className="mt-1 text-sm text-ink-500">
           Also known as: {detail.alternativeNames.join(", ")}
         </p>
       )}
 
       <div className="mt-6 grid gap-6 md:grid-cols-2">
-        <section className="rounded border bg-white p-4">
-          <h2 className="font-semibold">Knowledge</h2>
+        <section className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-card">
+          <h2 className="font-display text-lg font-bold text-ink-950">Knowledge</h2>
           {sections.map(([label, value]) =>
             value ? (
               <div key={label} className="mt-3">
-                <p className="text-xs uppercase tracking-widest text-neutral-500">{label}</p>
-                <p className="mt-1 text-sm">{value}</p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-ink-400">{label}</p>
+                <p className="mt-1 text-sm text-ink-800">{value}</p>
               </div>
             ) : null,
           )}
           {expert && detail.expertNotes && (
-            <div className="mt-3 rounded bg-amber-50 p-2">
-              <p className="text-xs uppercase tracking-widest text-amber-700">Expert notes</p>
-              <p className="mt-1 text-sm">{detail.expertNotes}</p>
+            <div className="mt-3 rounded-xl bg-amber-50 p-3">
+              <p className="text-xs font-semibold uppercase tracking-widest text-amber-700">Expert notes</p>
+              <p className="mt-1 text-sm text-ink-800">{detail.expertNotes}</p>
             </div>
           )}
           <StatusActions
@@ -98,38 +99,38 @@ export default async function ElementDetailPage({
         </section>
 
         <div className="space-y-6">
-          <section className="rounded border bg-white p-4">
-            <h2 className="font-semibold">Associations</h2>
+          <section className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-card">
+            <h2 className="font-display text-lg font-bold text-ink-950">Associations</h2>
             {detail.outgoingLinks.length === 0 ? (
-              <p className="mt-2 text-sm text-neutral-500">No associations yet.</p>
+              <p className="mt-2 text-sm text-ink-500">No associations yet.</p>
             ) : (
               <ul className="mt-2 space-y-1 text-sm">
                 {detail.outgoingLinks.map((l) => (
                   <li key={l.id}>
-                    <span className="rounded border px-1.5 py-0.5 text-xs">{l.relationshipType}</span>{" "}
+                    <span className="rounded-full bg-ink-50 px-2 py-0.5 text-xs font-medium text-ink-700 ring-1 ring-inset ring-ink-100">{l.relationshipType}</span>{" "}
                     {l.target ? (
-                      <a href={`/culture/${l.target.id}`} className="underline">{l.target.name}</a>
+                      <a href={`/culture/${l.target.id}`} className="font-medium text-ink-800 underline-offset-2 hover:text-brand-600 hover:underline">{l.target.name}</a>
                     ) : l.culture ? (
                       <span>{l.culture.name} (culture)</span>
                     ) : l.community ? (
                       <span>{l.community.name} (community)</span>
                     ) : (
-                      <span className="text-neutral-500">unresolved</span>
+                      <span className="text-ink-500">unresolved</span>
                     )}
                   </li>
                 ))}
               </ul>
             )}
             <details className="mt-3 text-sm">
-              <summary className="cursor-pointer underline">Add association</summary>
+              <summary className="cursor-pointer font-medium text-ink-700 hover:text-brand-600">Add association</summary>
               <AddRelationship elementId={detail.id} cultures={cultureList} communities={communityList} />
             </details>
           </section>
 
-          <section className="rounded border bg-white p-4">
-            <h2 className="font-semibold">Sources ({detail.references.length})</h2>
+          <section className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-card">
+            <h2 className="font-display text-lg font-bold text-ink-950">Sources ({detail.references.length})</h2>
             {detail.references.length === 0 ? (
-              <p className="mt-2 text-sm text-neutral-500">
+              <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-700">
                 ⚠ No supporting source — evaluation will flag this for review.
               </p>
             ) : (
@@ -139,38 +140,38 @@ export default async function ElementDetailPage({
                     <span className="font-mono text-xs">{r.reference.referenceCode}</span>{" "}
                     {r.reference.title}
                     {r.reference.author && (
-                      <span className="text-neutral-500"> — {r.reference.author}</span>
+                      <span className="text-ink-500"> — {r.reference.author}</span>
                     )}
                   </li>
                 ))}
               </ul>
             )}
             <details className="mt-3 text-sm">
-              <summary className="cursor-pointer underline">Attach source</summary>
+              <summary className="cursor-pointer font-medium text-ink-700 hover:text-brand-600">Attach source</summary>
               <AttachReference elementId={detail.id} references={referenceList} />
             </details>
           </section>
 
-          <section className="rounded border bg-white p-4">
-            <h2 className="font-semibold">Restrictions ({detail.restrictions.length})</h2>
+          <section className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-card">
+            <h2 className="font-display text-lg font-bold text-ink-950">Restrictions ({detail.restrictions.length})</h2>
             {detail.restrictions.length === 0 ? (
-              <p className="mt-2 text-sm text-neutral-500">No recorded restrictions.</p>
+              <p className="mt-2 text-sm text-ink-500">No recorded restrictions.</p>
             ) : (
               <ul className="mt-2 space-y-2 text-sm">
                 {detail.restrictions.map((r) => (
-                  <li key={r.id} className="rounded border border-red-200 bg-red-50 px-2 py-1">
-                    <span className="font-medium">{r.restrictionType}</span>
+                  <li key={r.id} className="rounded-xl border border-red-200 bg-red-50 px-3 py-2">
+                    <span className="font-medium text-red-800">{r.restrictionType}</span>
                     {r.severity && (
-                      <span className="ml-2 rounded border px-1 text-xs">{r.severity}</span>
+                      <span className="ml-2 rounded-full bg-white px-2 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-200">{r.severity}</span>
                     )}
-                    <p className="mt-1">{r.description}</p>
+                    <p className="mt-1 text-ink-800">{r.description}</p>
                   </li>
                 ))}
               </ul>
             )}
             {expert && (
               <details className="mt-3 text-sm">
-                <summary className="cursor-pointer underline">Manage restrictions</summary>
+                <summary className="cursor-pointer font-medium text-ink-700 hover:text-brand-600">Manage restrictions</summary>
                 <AddRestriction
                   elementId={detail.id}
                   cultures={cultureList}
@@ -181,8 +182,8 @@ export default async function ElementDetailPage({
             )}
           </section>
 
-          <section className="rounded border bg-white p-4">
-            <h2 className="font-semibold">Use in a project</h2>
+          <section className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-card">
+            <h2 className="font-display text-lg font-bold text-ink-950">Use in a project</h2>
             <AddToProject elementId={detail.id} projects={projectList} />
           </section>
         </div>
@@ -190,8 +191,8 @@ export default async function ElementDetailPage({
 
       {detail.related.length > 0 && (
         <section className="mt-6">
-          <h2 className="font-semibold">Related elements</h2>
-          <div className="mt-2 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <h2 className="font-display text-lg font-bold text-ink-950">Related elements</h2>
+          <div className="mt-3 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {detail.related.map((r) => (
               <ElementCard
                 key={r.id}

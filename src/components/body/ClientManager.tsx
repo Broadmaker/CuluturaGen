@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
 
 export interface Client {
   id: string;
@@ -57,12 +58,12 @@ export default function ClientManager({
 
   return (
     <div>
-      <h2 className="font-semibold">Client</h2>
+      <h2 className="font-display text-lg font-bold text-ink-950">Client</h2>
       <div className="mt-2 flex flex-wrap gap-2 text-sm">
         <select
           value={selectedId ?? ""}
           onChange={(e) => onSelect(e.target.value || null)}
-          className="rounded border px-2 py-1.5"
+          className="input w-auto text-sm py-1.5"
           aria-label="Client"
         >
           <option value="">No client (general profile)</option>
@@ -78,13 +79,13 @@ export default function ClientManager({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Client name / alias"
-          className="rounded border px-3 py-1.5"
+          className="input w-auto text-sm py-1.5"
         />
-        <button type="submit" disabled={pending} className="rounded border px-3 py-1.5 hover:bg-white disabled:opacity-50">
+        <Button variant="secondary" size="sm" type="submit" disabled={pending}>
           {pending ? "…" : "Add client"}
-        </button>
+        </Button>
       </form>
-      {error && <p className="mt-1 text-sm text-red-700">{error}</p>}
+      {error && <p className="mt-1 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
     </div>
   );
 }

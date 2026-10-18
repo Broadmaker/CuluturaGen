@@ -17,8 +17,8 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/dashboard";
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("admin@attirelab.local");
+  const [password, setPassword] = useState("Admin123!");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -47,42 +47,49 @@ function LoginForm() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-ink-950 px-6 py-12">
-      <div className="w-full max-w-4xl overflow-hidden rounded-2xl shadow-pop md:grid md:grid-cols-2">
-        <div className="hidden flex-col justify-between bg-ink-900 p-8 text-white md:flex">
+    <main className="flex min-h-screen items-center justify-center bg-paper px-6 py-12">
+      <div className="w-full max-w-4xl overflow-hidden rounded-3xl border border-stone-200/80 bg-white shadow-pop md:grid md:grid-cols-2">
+        <div className="hidden flex-col justify-between bg-gradient-to-br from-brand-500 to-brand-700 p-8 text-white md:flex">
           <div className="flex items-center gap-2.5">
-            <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-lg bg-brass-500 font-display text-xl text-ink-950">
+            <span
+              aria-hidden="true"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-white font-display text-xl font-bold text-brand-600"
+            >
               A
             </span>
             <span>
-              <span className="block font-display text-xl leading-none">AttireLab</span>
-              <span className="mt-0.5 block text-[11px] uppercase tracking-widest text-brass-200">
+              <span className="block font-display text-xl font-bold leading-none">AttireLab</span>
+              <span className="mt-0.5 block text-[11px] font-medium uppercase tracking-widest text-brand-100">
                 Heritage design lab
               </span>
             </span>
           </div>
           <div>
-            <p className="font-display text-2xl leading-snug">
+            <p className="font-display text-2xl font-semibold leading-snug">
               Culturally grounded, body-personalized, cost-aware attire design.
             </p>
-            <ol className="mt-4 space-y-1.5 text-sm text-stone-300">
+            <ol className="mt-4 space-y-1.5 text-sm text-brand-50">
               <li>① Research verified cultural knowledge</li>
               <li>② Define requirements, body & budget</li>
               <li>③ Generate, evaluate, refine — then approve</li>
             </ol>
           </div>
-          <p className="text-xs text-stone-400">
+          <p className="text-xs text-brand-100">
             Knowledge → Constraints → Generation → Evaluation → Human Review
           </p>
         </div>
         <div className="flex flex-col justify-center bg-white px-8 py-10">
-          <p className="text-xs font-semibold uppercase tracking-widest text-brass-700 md:hidden">
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-600 md:hidden">
             AttireLab
           </p>
-          <h1 className="mt-1 font-display text-3xl text-ink-950">Log in</h1>
+          <h1 className="mt-1 font-display text-3xl font-bold text-ink-950">Log in</h1>
+          <p className="mt-4 rounded-xl bg-brand-50 px-3 py-2 text-xs text-brand-800 ring-1 ring-inset ring-brand-100">
+            Prototype credentials are pre-filled — just press{" "}
+            <span className="font-semibold">Log in</span>.
+          </p>
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             <div>
-              <label htmlFor="email" className="text-sm font-medium text-stone-700">
+              <label htmlFor="email" className="text-sm font-medium text-ink-700">
                 Email
               </label>
               <input
@@ -92,11 +99,11 @@ function LoginForm() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input mt-1"
+                className="input mt-1.5"
               />
             </div>
             <div>
-              <label htmlFor="password" className="text-sm font-medium text-stone-700">
+              <label htmlFor="password" className="text-sm font-medium text-ink-700">
                 Password
               </label>
               <input
@@ -106,11 +113,11 @@ function LoginForm() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="input mt-1"
+                className="input mt-1.5"
               />
             </div>
             {error && (
-              <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+              <p role="alert" className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
                 {error}
               </p>
             )}
@@ -118,9 +125,9 @@ function LoginForm() {
               {pending ? "Logging in…" : "Log in"}
             </Button>
           </form>
-          <p className="mt-6 text-sm text-stone-600">
+          <p className="mt-6 text-sm text-ink-500">
             No account?{" "}
-            <Link href="/register" className="font-medium text-ink-800 underline underline-offset-2">
+            <Link href="/register" className="font-medium text-brand-600 underline underline-offset-2">
               Register
             </Link>
           </p>

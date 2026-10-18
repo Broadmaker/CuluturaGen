@@ -16,17 +16,23 @@ export default function Error({
   }, [error]);
 
   return (
-    <main className="mx-auto max-w-xl p-6 text-center">
-      <h1 className="text-xl font-bold">Something went wrong</h1>
-      <p className="mt-2 text-sm text-neutral-600">
+    <main className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center p-6 text-center">
+      <h1 className="font-display text-xl font-bold text-ink-950">Something went wrong</h1>
+      <p className="mt-2 text-sm text-ink-500">
         Your work is saved. Try again, or go back to the dashboard.
         {error.digest ? ` (ref ${error.digest})` : ""}
       </p>
-      <div className="mt-4 flex justify-center gap-2">
-        <button onClick={reset} className="rounded bg-black px-4 py-2 text-sm text-white">
+      <div className="mt-5 flex justify-center gap-2">
+        <button
+          onClick={reset}
+          className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-brand-500/25 transition-colors hover:bg-brand-600"
+        >
           Try again
         </button>
-        <a href="/dashboard" className="rounded border px-4 py-2 text-sm">
+        <a
+          href="/dashboard"
+          className="rounded-xl border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-ink-700 shadow-sm transition-colors hover:border-brand-200 hover:text-brand-700"
+        >
           Dashboard
         </a>
       </div>

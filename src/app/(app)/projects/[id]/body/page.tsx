@@ -65,12 +65,14 @@ export default async function BodyPage({
   }));
 
   return (
-    <main className="mx-auto max-w-6xl p-6">
-      <p className="text-sm text-neutral-500">
-        <a href="/projects" className="underline">Projects</a> /{" "}
-        <a href={`/projects/${project.id}`} className="underline">{project.name}</a> / Body
+    <main className="w-full p-6">
+      <p className="text-sm font-medium text-ink-500">
+        <a href="/projects" className="text-ink-700 transition hover:text-brand-600">Projects</a>
+        <span className="mx-1.5 text-ink-300">/</span>
+        <a href={`/projects/${project.id}`} className="text-ink-700 transition hover:text-brand-600">{project.name}</a>
+        <span className="mx-1.5 text-ink-300">/</span> Body
       </p>
-      <h1 className="mt-1 text-2xl font-bold">Client & Body Profile</h1>
+      <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-ink-950">Client &amp; Body Profile</h1>
       <div className="mt-4">
         <BodySection projectId={project.id} clients={clientList} profiles={profiles} />
       </div>

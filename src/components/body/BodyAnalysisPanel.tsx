@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
 
 // Computer-vision body analysis panel (md/01 §15, md/08 §30–31).
 // Upload → consent → ESTIMATED snapshot → designer Accept / Correct / Reject.
@@ -115,15 +116,15 @@ export default function BodyAnalysisPanel({
   }
 
   return (
-    <div className="mt-6 rounded border bg-white p-4">
-      <h2 className="font-semibold">Vision estimate</h2>
-      <p className="mt-1 text-xs text-neutral-500">
+    <div className="mt-6 rounded-2xl border border-stone-200/80 bg-white p-5 shadow-card">
+      <h2 className="font-display text-lg font-bold text-ink-950">Vision estimate</h2>
+      <p className="mt-1 text-xs text-ink-500">
         Upload a reference photo for landmark-based estimates. Results are labeled
         ESTIMATED and need your review — never treated as measured (md/01 §15).
       </p>
 
       {isEstimate && (
-        <div className="mt-3 rounded border border-amber-600 bg-amber-50 p-3">
+        <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
           <p className="text-sm font-medium text-amber-900">
             ⚠ ESTIMATED — designer review required
             {latestConfidence ? ` (confidence ${latestConfidence})` : ""}
@@ -133,7 +134,7 @@ export default function BodyAnalysisPanel({
             <img
               src={latestImageUrl}
               alt="Body reference photo"
-              className="mt-2 max-h-48 rounded border"
+              className="mt-2 max-h-48 rounded-lg border border-stone-200"
             />
           )}
           <p className="mt-2 text-xs text-amber-800">
@@ -141,27 +142,28 @@ export default function BodyAnalysisPanel({
             to delete the estimate and its photo.
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
-            <button
+            <Button
+              type="button"
               onClick={accept}
               disabled={pending}
-              className="rounded bg-black px-4 py-2 text-sm text-white disabled:opacity-50"
             >
               {pending ? "Working…" : "Accept estimate"}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="danger"
+              type="button"
               onClick={reject}
               disabled={pending}
-              className="rounded border border-red-700 px-4 py-2 text-sm text-red-700 disabled:opacity-50"
             >
               Reject & delete
-            </button>
+            </Button>
           </div>
         </div>
       )}
 
       <div className="mt-3 grid gap-3">
         <div>
-          <label htmlFor="body-photo" className="text-sm font-medium">Reference photo (JPEG/PNG/WebP, max 8 MB)</label>
+          <label htmlFor="body-photo" className="text-sm font-medium text-ink-700">Reference photo (JPEG/PNG/WebP, max 8 MB)</label>
           <input
             id="body-photo"
             type="file"
@@ -183,16 +185,16 @@ export default function BodyAnalysisPanel({
           </span>
         </label>
         <div>
-          <button
+          <Button
+            type="button"
             onClick={upload}
             disabled={pending}
-            className="rounded bg-black px-4 py-2 text-sm text-white disabled:opacity-50"
           >
             {pending ? "Analyzing…" : "Analyze photo"}
-          </button>
+          </Button>
         </div>
       </div>
-      {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
     </div>
   );
 }

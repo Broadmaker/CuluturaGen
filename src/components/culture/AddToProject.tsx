@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BASKET_ROLES } from "@/lib/culture/constants";
+import Button from "@/components/ui/Button";
 
 // md/08 §22 Add to Project.
 export default function AddToProject({
@@ -46,7 +47,7 @@ export default function AddToProject({
   }
 
   if (projects.length === 0) {
-    return <p className="mt-2 text-sm text-neutral-500">Create a project first to collect references.</p>;
+    return <p className="mt-2 text-sm text-ink-500">Create a project first to collect references.</p>;
   }
 
   return (
@@ -55,7 +56,7 @@ export default function AddToProject({
         <select
           value={projectId}
           onChange={(e) => setProjectId(e.target.value)}
-          className="rounded border px-2 py-1"
+          className="input w-auto text-sm py-1.5"
           aria-label="Project"
         >
           <option value="">Select project…</option>
@@ -66,29 +67,28 @@ export default function AddToProject({
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="rounded border px-2 py-1"
+          className="input w-auto text-sm py-1.5"
           aria-label="Role"
         >
           {BASKET_ROLES.map((r) => (
             <option key={r} value={r}>{r}</option>
           ))}
         </select>
-        <button
+        <Button
           onClick={add}
           disabled={!projectId || pending}
-          className="rounded bg-black px-3 py-1 text-white disabled:opacity-50"
         >
           {pending ? "…" : "Add to Project"}
-        </button>
+        </Button>
       </div>
       <input
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         placeholder="Notes (optional)"
-        className="w-full rounded border px-2 py-1"
+        className="input text-sm py-1.5"
       />
-      {error && <p className="text-red-700">{error}</p>}
-      {done && <p className="text-green-700">Added to project research basket.</p>}
+      {error && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {done && <p className="text-sm font-medium text-green-700">Added to project research basket.</p>}
     </div>
   );
 }

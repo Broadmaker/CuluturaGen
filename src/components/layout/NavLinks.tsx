@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import type { NavItem } from "@/lib/auth/navigation";
 import { NavIcons } from "@/components/layout/icons";
 
-// Active-section navigation (md/08 §5). The current section is highlighted
-// with background + aria-current — never position or color alone.
+// Active-section navigation (md/08 §5). The current section is a filled
+// orange pill (reference style) with aria-current — never color alone.
 export default function NavLinks({
   items,
   variant,
@@ -26,10 +26,10 @@ export default function NavLinks({
             key={i.href}
             href={i.href}
             aria-current={isActive(i.href) ? "page" : undefined}
-            className={`whitespace-nowrap rounded-lg border px-3 py-1 ${
+            className={`whitespace-nowrap rounded-full border px-3 py-1 text-sm transition-colors ${
               isActive(i.href)
-                ? "border-brass-400 bg-brass-500 text-ink-950"
-                : "border-ink-700 text-stone-200"
+                ? "border-brand-500 bg-brand-500 font-semibold text-white"
+                : "border-stone-200 text-ink-600 hover:border-brand-200 hover:text-brand-700"
             }`}
           >
             {i.label}
@@ -46,13 +46,20 @@ export default function NavLinks({
           key={i.href}
           href={i.href}
           aria-current={isActive(i.href) ? "page" : undefined}
-          className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-ink-800 hover:text-white ${
+          className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
             isActive(i.href)
-              ? "bg-ink-800 font-medium text-white shadow-[inset_2px_0_0_0_#d2a93b]"
-              : "text-stone-300"
+              ? "bg-brand-500 font-semibold text-white shadow-sm shadow-brand-500/30"
+              : "text-ink-600 hover:bg-brand-50 hover:text-brand-700"
           }`}
         >
-          <span aria-hidden="true" className={isActive(i.href) ? "text-brass-400" : "text-stone-400"}>
+          <span
+            aria-hidden="true"
+            className={
+              isActive(i.href)
+                ? "text-white"
+                : "text-ink-400 transition-colors group-hover:text-brand-500"
+            }
+          >
             {NavIcons[i.icon]}
           </span>
           {i.label}

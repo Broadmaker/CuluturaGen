@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
 
 // md/04 §38 validation workflow actions. Buttons render by role; the API
 // enforces transitions a second time.
@@ -57,22 +58,21 @@ export default function StatusActions({
 
   return (
     <div className="mt-4">
-      <p className="text-sm font-medium">Validation</p>
+      <p className="text-sm font-medium text-ink-700">Validation</p>
       <div className="mt-1 flex flex-wrap gap-2">
         {visible.map((a) => (
-          <button
+          <Button
             key={a.label}
+            variant={a.primary ? "primary" : "secondary"}
+            size="sm"
             onClick={() => change(a.to)}
             disabled={pending !== null}
-            className={`rounded px-3 py-1 text-sm disabled:opacity-50 ${
-              a.primary ? "bg-black text-white" : "border hover:bg-white"
-            }`}
           >
             {pending === a.to ? "…" : a.label}
-          </button>
+          </Button>
         ))}
       </div>
-      {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
     </div>
   );
 }

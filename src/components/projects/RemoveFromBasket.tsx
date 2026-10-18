@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
 
 export default function RemoveFromBasket({
   projectId,
@@ -22,13 +23,15 @@ export default function RemoveFromBasket({
   }
 
   return (
-    <button
+    <Button
+      variant="secondary"
+      size="sm"
+      type="button"
       onClick={remove}
       disabled={pending}
-      className="rounded border px-2 py-0.5 text-xs hover:bg-white disabled:opacity-50"
       aria-label="Remove from basket"
     >
       {pending ? "…" : "Remove"}
-    </button>
+    </Button>
   );
 }

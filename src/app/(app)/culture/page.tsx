@@ -57,7 +57,7 @@ export default async function CulturePage({
   const matchById = new Map(hits.map((h) => [h.element.id, h]));
 
   return (
-    <main className="mx-auto max-w-6xl space-y-4 p-6">
+    <main className="w-full space-y-4 p-6">
       <PageHeader
         eyebrow="Research"
         title="Cultural Knowledge"
@@ -102,7 +102,7 @@ export default async function CulturePage({
       {elements.length === 0 ? (
         <div className="rounded-xl border border-dashed border-stone-300 bg-white p-8 text-center shadow-card">
           <p className="font-display text-xl text-ink-950">No results</p>
-          <p className="mt-2 text-sm text-stone-600">
+          <p className="mt-2 text-sm text-ink-600">
             Try different terms, or propose a new element for expert review.
           </p>
         </div>

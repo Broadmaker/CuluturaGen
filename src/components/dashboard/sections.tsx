@@ -116,8 +116,8 @@ export async function TablesRow() {
     <div className="grid gap-4 md:grid-cols-2">
       <Card eyebrow="Pipeline" title="Recent Projects" action={<Button href="/projects" variant="ghost" size="sm">View all →</Button>}>
         {recentProjects.length === 0 ? (
-          <p className="mt-2 text-sm text-stone-500">
-            No projects yet. <Link href="/projects/new" className="font-medium text-ink-800 underline underline-offset-2">Create your first project</Link>.
+          <p className="mt-2 text-sm text-ink-500">
+            No projects yet. <Link href="/projects/new" className="font-medium text-ink-800 underline-offset-2 hover:text-brand-600 hover:underline">Create your first project</Link>.
           </p>
         ) : (
           <table className="mt-2 w-full text-sm">
@@ -132,14 +132,14 @@ export async function TablesRow() {
               {recentProjects.map((p) => (
                 <tr key={p.id}>
                   <td>
-                    <Link href={`/projects/${p.id}`} className="font-medium text-ink-800 underline underline-offset-2">
+                    <Link href={`/projects/${p.id}`} className="font-medium text-ink-800 underline-offset-2 hover:text-brand-600 hover:underline">
                       {p.name}
                     </Link>
                   </td>
                   <td>
                     <StatusBadge value={p.status} />
                   </td>
-                  <td className="text-stone-500">{p.updatedAt?.toLocaleDateString()}</td>
+                  <td className="text-ink-500">{p.updatedAt?.toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>
@@ -153,16 +153,16 @@ export async function TablesRow() {
         action={<Button href="/evaluations" variant="ghost" size="sm">All evaluations →</Button>}
       >
         {reviewQueue.length === 0 ? (
-          <p className="mt-2 text-sm text-stone-500">Nothing awaiting review.</p>
+          <p className="mt-2 text-sm text-ink-500">Nothing awaiting review.</p>
         ) : (
           <ul className="mt-2 space-y-2 text-sm">
             {reviewQueue.map((d) => (
               <li key={d.id} className="flex items-center justify-between gap-2 rounded-lg border border-brass-200 bg-brass-50 px-3 py-2">
                 <div className="min-w-0">
-                  <Link href={`/design-studio/${d.id}`} className="font-medium text-ink-900 underline underline-offset-2">
+                  <Link href={`/design-studio/${d.id}`} className="font-medium text-ink-800 underline-offset-2 hover:text-brand-600 hover:underline">
                     {d.name ?? d.designCode}
                   </Link>
-                  <span className="text-stone-500"> · {d.project.name}</span>
+                  <span className="text-ink-500"> · {d.project.name}</span>
                 </div>
                 <StatusBadge value="REVIEW_REQUIRED" />
               </li>

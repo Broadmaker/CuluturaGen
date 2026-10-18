@@ -11,7 +11,7 @@ export default function StatusBadge({
   const s = statusTone(value);
   return (
     <span
-      className={`inline-block rounded border px-2 py-0.5 text-xs font-medium ${s.className}`}
+      className={`inline-block whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium ${s.className}`}
       title={title ?? `Status: ${s.label}`}
     >
       {s.icon} {s.label}

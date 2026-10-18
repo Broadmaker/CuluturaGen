@@ -16,11 +16,12 @@ export default async function NewElementPage() {
   ]);
 
   return (
-    <main className="mx-auto max-w-6xl p-6">
-      <p className="text-sm text-neutral-500">
-        <a href="/culture" className="underline">Cultural Knowledge</a> / New
+    <main className="w-full p-6">
+      <p className="text-sm font-medium text-ink-500">
+        <a href="/culture" className="text-ink-700 transition hover:text-brand-600">Cultural Knowledge</a>
+        <span className="mx-1.5 text-ink-300">/</span> New
       </p>
-      <h1 className="mt-1 text-2xl font-bold">Propose Cultural Element</h1>
+      <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-ink-950">Propose Cultural Element</h1>
       <NewElementForm cultures={cultureList} communities={communityList} />
     </main>
   );

@@ -15,14 +15,18 @@ export default function Card({
   className?: string;
 }) {
   return (
-    <section className={`rounded-xl border border-stone-200 bg-white p-5 shadow-card ${className}`}>
+    <section className={`rounded-2xl border border-stone-200/80 bg-white p-5 shadow-card ${className}`}>
       {(eyebrow || title || action) && (
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             {eyebrow && (
-              <p className="text-xs font-semibold uppercase tracking-widest text-brass-700">{eyebrow}</p>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-600">
+                {eyebrow}
+              </p>
             )}
-            {title && <h2 className="mt-0.5 font-display text-lg text-ink-950">{title}</h2>}
+            {title && (
+              <h2 className="mt-1 font-display text-lg font-bold text-ink-950">{title}</h2>
+            )}
           </div>
           {action}
         </div>

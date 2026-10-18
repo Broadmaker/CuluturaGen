@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
 
 // md/08 §49 regeneration with designer feedback → new version.
 export default function RegenerateForm({ designId }: { designId: string }) {
@@ -37,19 +38,19 @@ export default function RegenerateForm({ designId }: { designId: string }) {
 
   return (
     <form onSubmit={submit} className="mt-3 border-t pt-3 text-sm">
-      <label htmlFor="regen" className="font-medium">Regenerate / refine</label>
+      <label htmlFor="regen" className="font-medium text-ink-700">Regenerate / refine</label>
       <textarea
         id="regen"
         value={instruction}
         onChange={(e) => setInstruction(e.target.value)}
         placeholder="What should change? (e.g. simpler silhouette, lower decoration)"
         rows={2}
-        className="mt-1 w-full rounded border px-2 py-1"
+        className="input mt-1 text-sm py-1.5"
       />
-      {error && <p className="mt-1 text-red-700">{error}</p>}
-      <button type="submit" disabled={pending} className="mt-2 rounded bg-black px-3 py-1 text-white disabled:opacity-50">
+      {error && <p className="mt-1 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      <Button type="submit" disabled={pending} className="mt-2">
         {pending ? "Generating…" : "Generate revision"}
-      </button>
+      </Button>
     </form>
   );
 }

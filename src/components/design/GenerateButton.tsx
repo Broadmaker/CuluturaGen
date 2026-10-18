@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
 
 // md/08 §123 — confirm before the (potentially paid) AI call.
 export default function GenerateButton({ projectId }: { projectId: string }) {
@@ -36,19 +37,19 @@ export default function GenerateButton({ projectId }: { projectId: string }) {
 
   if (!confirming) {
     return (
-      <button
+      <Button
+        type="button"
         onClick={() => setConfirming(true)}
-        className="rounded bg-black px-3 py-1.5 text-sm text-white"
       >
         Generate design
-      </button>
+      </Button>
     );
   }
 
   return (
-    <div className="mt-2 rounded border bg-neutral-50 p-3 text-sm">
+    <div className="mt-2 rounded-xl border border-stone-200 bg-ink-50 p-3 text-sm">
       <p className="font-medium">GENERATE DESIGN?</p>
-      <p className="mt-1 text-neutral-600">
+      <p className="mt-1 text-ink-500">
         This will create 1 design specification + 1 visual concept from the
         project brief, cultural basket, and body profile.
       </p>
@@ -56,20 +57,20 @@ export default function GenerateButton({ projectId }: { projectId: string }) {
         value={instruction}
         onChange={(e) => setInstruction(e.target.value)}
         placeholder="Optional instruction (e.g. more traditional)"
-        className="mt-2 w-full rounded border px-2 py-1"
+        className="input mt-2 text-sm py-1.5"
       />
-      {error && <p className="mt-1 text-red-700">{error}</p>}
+      {error && <p className="mt-1 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       <div className="mt-2 flex gap-2">
-        <button
+        <Button
+          type="button"
           onClick={generate}
           disabled={pending}
-          className="rounded bg-black px-3 py-1 text-white disabled:opacity-50"
         >
           {pending ? "Generating…" : "Generate"}
-        </button>
-        <button onClick={() => setConfirming(false)} className="rounded border px-3 py-1">
+        </Button>
+        <Button variant="secondary" size="sm" type="button" onClick={() => setConfirming(false)}>
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   );

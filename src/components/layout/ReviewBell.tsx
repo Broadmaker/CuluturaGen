@@ -18,11 +18,11 @@ export default async function ReviewBell() {
       href="/evaluations"
       aria-label={`${reviewCount} designs awaiting review`}
       title="Review queue"
-      className="relative hidden rounded-lg border border-stone-200 bg-white p-2 text-stone-500 shadow-sm transition-colors hover:text-ink-900 sm:block"
+      className="relative hidden rounded-full border border-stone-200 bg-white p-2.5 text-ink-500 shadow-sm transition-colors hover:border-brand-200 hover:text-brand-600 sm:block"
     >
       {NavIcons.bell}
       {reviewCount > 0 && (
-        <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-brass-500 px-1 text-[11px] font-bold text-ink-950">
+        <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 px-1 text-[11px] font-bold text-white ring-2 ring-white">
           {reviewCount}
         </span>
       )}
@@ -35,7 +35,7 @@ export function ReviewBellFallback() {
   return (
     <span
       aria-hidden="true"
-      className="hidden h-9 w-9 rounded-lg border border-stone-200 bg-white shadow-sm sm:block"
+      className="hidden h-10 w-10 rounded-full border border-stone-200 bg-white shadow-sm sm:block"
     />
   );
 }

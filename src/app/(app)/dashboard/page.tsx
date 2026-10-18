@@ -30,7 +30,7 @@ export default async function DashboardPage() {
   const today = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
   return (
-    <main className="mx-auto max-w-6xl space-y-6 p-6">
+    <main className="w-full space-y-6 p-6">
       <PageHeader
         eyebrow={today}
         title={`Welcome back${user?.displayName ? `, ${user.displayName}` : ""}`}
@@ -62,7 +62,7 @@ export default async function DashboardPage() {
                 </span>
                 <span className="min-w-0">
                   <span className="block text-sm font-medium text-ink-950 group-hover:underline">{s.label}</span>
-                  <span className="block truncate text-xs text-stone-500">{s.hint}</span>
+                  <span className="block truncate text-xs text-ink-500">{s.hint}</span>
                 </span>
               </Link>
             </li>

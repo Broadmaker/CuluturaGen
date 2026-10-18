@@ -35,13 +35,15 @@ export default async function RequirementsPage({
   const brief = briefs[0] ?? null;
 
   return (
-    <main className="mx-auto max-w-6xl p-6">
-      <p className="text-sm text-neutral-500">
-        <a href="/projects" className="underline">Projects</a> /{" "}
-        <a href={`/projects/${project.id}`} className="underline">{project.name}</a> / Requirements
+    <main className="w-full p-6">
+      <p className="text-sm font-medium text-ink-500">
+        <a href="/projects" className="text-ink-700 transition hover:text-brand-600">Projects</a>
+        <span className="mx-1.5 text-ink-300">/</span>
+        <a href={`/projects/${project.id}`} className="text-ink-700 transition hover:text-brand-600">{project.name}</a>
+        <span className="mx-1.5 text-ink-300">/</span> Requirements
       </p>
-      <h1 className="mt-1 text-2xl font-bold">Design Requirements</h1>
-      <section className="rounded border bg-white p-4">
+      <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-ink-950">Design Requirements</h1>
+      <section className="mt-4 rounded-2xl border border-stone-200/80 bg-white p-5 shadow-card">
         <BriefForm
           projectId={project.id}
           brief={brief}

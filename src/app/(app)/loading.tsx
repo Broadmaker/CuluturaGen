@@ -4,7 +4,7 @@ import PageSkeleton from "@/components/layout/PageSkeleton";
 // Server pages stream this instantly while data loads — no blank screens.
 export default function Loading() {
   return (
-    <main className="mx-auto max-w-6xl p-6" aria-busy="true" aria-label="Loading">
+    <main className="w-full p-6" aria-busy="true" aria-label="Loading">
       <PageSkeleton />
     </main>
   );

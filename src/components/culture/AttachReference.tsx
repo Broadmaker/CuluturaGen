@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
 
 // Attach an existing reference as provenance (md/04 §27).
 export default function AttachReference({
@@ -46,7 +47,7 @@ export default function AttachReference({
         <select
           value={referenceId}
           onChange={(e) => setReferenceId(e.target.value)}
-          className="rounded border px-2 py-1"
+          className="input w-auto text-sm py-1.5"
           aria-label="Reference"
         >
           <option value="">Select reference…</option>
@@ -56,16 +57,17 @@ export default function AttachReference({
             </option>
           ))}
         </select>
-        <button
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={attach}
           disabled={!referenceId || pending}
-          className="rounded border px-3 py-1 hover:bg-white disabled:opacity-50"
         >
           {pending ? "…" : "Attach"}
-        </button>
+        </Button>
       </div>
-      {error && <p className="mt-1 text-sm text-red-700">{error}</p>}
-      <p className="mt-1 text-xs text-neutral-500">
+      {error && <p className="mt-1 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      <p className="mt-1 text-xs text-ink-500">
         New source? Create it via POST /api/references (library UI in a later pass).
       </p>
     </div>

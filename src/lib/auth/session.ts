@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
@@ -82,7 +83,10 @@ export interface SessionUser {
   roles: string[];
 }
 
-export async function getSessionUser(): Promise<SessionUser | null> {
+// Memoized per request: the (app) layout and the page each call this, and
+// several components call it again — React `cache` collapses them into a
+// single DB round trip so tab navigation stays snappy.
+export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
   const token = cookies().get(SESSION_COOKIE)?.value;
   const payload = verifySessionToken(token);
   if (!payload) return null;
@@ -97,7 +101,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     displayName: user.displayName,
     roles: user.userRoles.map((r) => r.role.code),
   };
-}
+});
 
 export function hasRole(user: SessionUser | null, ...allowed: string[]): boolean {
   if (!user) return false;

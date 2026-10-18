@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import StatusBadge from "@/components/status/StatusBadge";
+import Button from "@/components/ui/Button";
 
 interface LinkedMaterial {
   id: string;
@@ -109,19 +110,19 @@ export default function CostPanel({
   ) {
     return (
       <div className="mt-2">
-        <p className="text-xs uppercase tracking-widest text-neutral-500">{title}</p>
+        <p className="text-xs uppercase tracking-widest text-ink-500">{title}</p>
         {rows.map((l, i) => (
           <div key={i} className="mt-1 flex flex-wrap gap-1 text-sm">
-            <input value={l.description} onChange={(e) => setRows(rows.map((r, j) => (j === i ? { ...r, description: e.target.value } : r)))} placeholder="Description" className="min-w-40 flex-1 rounded border px-2 py-1" />
-            <input value={l.quantity} onChange={(e) => setRows(rows.map((r, j) => (j === i ? { ...r, quantity: e.target.value } : r)))} placeholder="Qty" className="w-16 rounded border px-2 py-1" />
-            <input value={l.unit} onChange={(e) => setRows(rows.map((r, j) => (j === i ? { ...r, unit: e.target.value } : r)))} placeholder="Unit" className="w-20 rounded border px-2 py-1" />
-            <input value={l.unitPrice} onChange={(e) => setRows(rows.map((r, j) => (j === i ? { ...r, unitPrice: e.target.value } : r)))} placeholder="₱/unit" className="w-24 rounded border px-2 py-1" />
-            <button onClick={() => setRows(rows.filter((_, j) => j !== i))} className="rounded border px-2 py-1 text-xs">✕</button>
+            <input value={l.description} onChange={(e) => setRows(rows.map((r, j) => (j === i ? { ...r, description: e.target.value } : r)))} placeholder="Description" className="input min-w-40 flex-1 text-sm py-1.5" />
+            <input value={l.quantity} onChange={(e) => setRows(rows.map((r, j) => (j === i ? { ...r, quantity: e.target.value } : r)))} placeholder="Qty" className="input w-16 text-sm py-1.5" />
+            <input value={l.unit} onChange={(e) => setRows(rows.map((r, j) => (j === i ? { ...r, unit: e.target.value } : r)))} placeholder="Unit" className="input w-20 text-sm py-1.5" />
+            <input value={l.unitPrice} onChange={(e) => setRows(rows.map((r, j) => (j === i ? { ...r, unitPrice: e.target.value } : r)))} placeholder="₱/unit" className="input w-24 text-sm py-1.5" />
+            <Button type="button" variant="secondary" size="sm" onClick={() => setRows(rows.filter((_, j) => j !== i))}>✕</Button>
           </div>
         ))}
-        <button onClick={() => setRows([...rows, { ...EMPTY_LINE }])} className="mt-1 rounded border px-2 py-0.5 text-xs">
+        <Button type="button" variant="secondary" size="sm" className="mt-1" onClick={() => setRows([...rows, { ...EMPTY_LINE }])}>
           + Add {title.toLowerCase()} line
-        </button>
+        </Button>
       </div>
     );
   }
@@ -164,31 +165,31 @@ export default function CostPanel({
   return (
     <div className="text-sm">
       <div className="mt-2">
-        <p className="text-xs uppercase tracking-widest text-neutral-500">Linked materials</p>
+        <p className="text-xs uppercase tracking-widest text-ink-500">Linked materials</p>
         {linked.length === 0 ? (
-          <p className="mt-1 text-neutral-500">None linked — add from the library.</p>
+          <p className="mt-1 text-ink-500">None linked — add from the library.</p>
         ) : (
           <ul className="mt-1 space-y-1">
             {linked.map((l) => (
               <li key={l.id} className="flex items-center gap-2">
-                <Link href={`/materials/${l.materialId}`} className="underline">{l.material.name}</Link>
-                <span className="text-neutral-500">{l.quantity} {l.unit ?? l.material.unit}</span>
-                <button onClick={() => removeMaterial(l.materialId)} className="rounded border px-1.5 py-0.5 text-xs">✕</button>
+                <Link href={`/materials/${l.materialId}`} className="font-medium text-ink-800 underline-offset-2 hover:text-brand-600 hover:underline">{l.material.name}</Link>
+                <span className="text-ink-500">{l.quantity} {l.unit ?? l.material.unit}</span>
+                <Button type="button" variant="secondary" size="sm" onClick={() => removeMaterial(l.materialId)}>✕</Button>
               </li>
             ))}
           </ul>
         )}
         <div className="mt-2 flex flex-wrap gap-1">
-          <select value={addId} onChange={(e) => setAddId(e.target.value)} className="rounded border px-2 py-1" aria-label="Material">
+          <select value={addId} onChange={(e) => setAddId(e.target.value)} className="input w-auto text-sm py-1.5" aria-label="Material">
             <option value="">Select material…</option>
             {library.map((m) => (
               <option key={m.id} value={m.id}>{m.name}</option>
             ))}
           </select>
-          <input value={addQty} onChange={(e) => setAddQty(e.target.value)} placeholder="Qty" className="w-20 rounded border px-2 py-1" />
-          <button onClick={addMaterial} disabled={!addId || !addQty} className="rounded border px-2 py-1 text-xs disabled:opacity-50">
+          <input value={addQty} onChange={(e) => setAddQty(e.target.value)} placeholder="Qty" className="input w-20 text-sm py-1.5" />
+          <Button type="button" variant="secondary" size="sm" onClick={addMaterial} disabled={!addId || !addQty}>
             Link
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -196,13 +197,13 @@ export default function CostPanel({
       {lineEditor("Decoration", decoration, setDecoration)}
       {lineEditor("Other", other, setOther)}
 
-      <button onClick={calculate} disabled={pending} className="mt-3 rounded bg-black px-4 py-1.5 text-white disabled:opacity-50">
+      <Button type="button" onClick={calculate} disabled={pending} className="mt-3">
         {pending ? "Calculating…" : "Calculate cost"}
-      </button>
-      {error && <p className="mt-2 text-red-700">{error}</p>}
+      </Button>
+      {error && <p className="mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       {result && (
-        <div className="mt-3 rounded border p-3">
+        <div className="mt-3 rounded-2xl border border-stone-200/80 bg-white p-5 shadow-card">
           <div className="space-y-0.5">
             <div className="flex justify-between"><span>Materials</span><span>{fmt(result.materials)}</span></div>
             <div className="flex justify-between"><span>Labor</span><span>{fmt(result.labor)}</span></div>
@@ -232,7 +233,7 @@ export default function CostPanel({
 
       {history.length > 0 && (
         <div className="mt-3">
-          <p className="text-xs uppercase tracking-widest text-neutral-500">Cost history</p>
+          <p className="text-xs uppercase tracking-widest text-ink-500">Cost history</p>
           <ul className="mt-1 space-y-1 text-xs">
             {history.map((h) => (
               <li key={h.id}>

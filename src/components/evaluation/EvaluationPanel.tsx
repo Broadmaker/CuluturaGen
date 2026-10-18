@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import StatusBadge from "@/components/status/StatusBadge";
+import Button from "@/components/ui/Button";
 
 interface Finding {
   id: string;
@@ -148,26 +149,26 @@ export default function EvaluationPanel({
   return (
     <div className="text-sm">
       <div className="flex flex-wrap items-center gap-2">
-        <button onClick={run} disabled={pending} className="rounded bg-black px-3 py-1.5 text-white disabled:opacity-50">
+        <Button type="button" onClick={run} disabled={pending}>
           {pending ? "Evaluating…" : evaluation ? "Re-evaluate V" + versionNumber : "Run evaluation"}
-        </button>
+        </Button>
         {evaluation && (
           <StatusBadge value={evaluation.overallStatus} />
         )}
       </div>
-      {error && <p className="mt-2 text-red-700">{error}</p>}
+      {error && <p className="mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {!loaded ? (
-        <p className="mt-2 text-neutral-500">Loading…</p>
+        <p className="mt-2 text-ink-500">Loading…</p>
       ) : !evaluation ? (
-        <p className="mt-2 text-neutral-500">
+        <p className="mt-2 text-ink-500">
           No evaluation yet for this design — run one to get evidence-based findings.
         </p>
       ) : (
         <>
           <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-5">
             {DOMAIN_LABELS.map(([key, label]) => (
-              <div key={key} className="rounded border bg-white px-2 py-1.5">
-                <p className="text-xs uppercase tracking-widest text-neutral-500">{label}</p>
+              <div key={key} className="rounded-xl border border-stone-200/80 bg-white px-3 py-2">
+                <p className="text-xs uppercase tracking-widest text-ink-500">{label}</p>
                 <p className="font-medium">{((evaluation as unknown as Record<string, string | null>)[key] ?? "—").replace(/_/g, " ")}</p>
               </div>
             ))}
@@ -175,33 +176,33 @@ export default function EvaluationPanel({
 
           <div className="mt-3 space-y-2">
             {findings.length === 0 && (
-              <p className="text-neutral-500">No findings — all domains passed.</p>
+              <p className="text-ink-500">No findings — all domains passed.</p>
             )}
             {findings.map((f) => (
-              <div key={f.id} className={`rounded border p-3 ${SEV_STYLES[f.severity] ?? ""}`}>
+              <div key={f.id} className={`rounded-xl border p-3 ${SEV_STYLES[f.severity] ?? ""}`}>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded border bg-white px-1.5 py-0.5 text-xs font-medium">{f.severity}</span>
-                  <span className="rounded bg-white px-1.5 py-0.5 text-xs text-neutral-500">{f.category}</span>
+                  <span className="rounded-full bg-ink-50 px-2 py-0.5 text-xs font-medium text-ink-700 ring-1 ring-inset ring-ink-100">{f.severity}</span>
+                  <span className="rounded-full bg-ink-50 px-2 py-0.5 text-xs font-medium text-ink-700 ring-1 ring-inset ring-ink-100">{f.category}</span>
                   {f.resolved && <span className="text-xs text-green-700">✓ resolved</span>}
                   <span className="ml-auto">
                     {!f.resolved && (
-                      <button onClick={() => resolve(f.id)} className="rounded border bg-white px-2 py-0.5 text-xs">
+                      <Button type="button" variant="secondary" size="sm" onClick={() => resolve(f.id)}>
                         Resolve
-                      </button>
+                      </Button>
                     )}
                   </span>
                 </div>
                 <p className="mt-1">{f.finding}</p>
                 {f.recommendation && (
-                  <p className="mt-1 text-neutral-600">→ {f.recommendation}</p>
+                  <p className="mt-1 text-ink-500">→ {f.recommendation}</p>
                 )}
               </div>
             ))}
           </div>
 
-          <div className="mt-4 rounded border bg-white p-3">
-            <h3 className="font-semibold">HUMAN REVIEW</h3>
-            <p className="mt-1 text-neutral-600">
+          <div className="mt-4 rounded-2xl border border-stone-200/80 bg-white p-5 shadow-card">
+            <h3 className="font-display text-sm font-bold uppercase tracking-wide text-ink-950">HUMAN REVIEW</h3>
+            <p className="mt-1 text-ink-500">
               System: {evaluation.overallStatus?.replace(/_/g, " ")} · {open.length} open finding(s)
               {critical > 0 && ` · approval blocked by ${critical} CRITICAL`}
             </p>
@@ -210,15 +211,15 @@ export default function EvaluationPanel({
               onChange={(e) => setReviewComment(e.target.value)}
               placeholder="Review comment / revision instructions"
               rows={2}
-              className="mt-2 w-full rounded border px-2 py-1"
+              className="input mt-2 text-sm py-1.5"
             />
             <div className="mt-2 flex flex-wrap gap-2">
-              <button onClick={approve} disabled={critical > 0} title={critical > 0 ? `${critical} CRITICAL findings unresolved` : "Approve design"} className="rounded bg-black px-3 py-1 text-white disabled:opacity-50">
+              <Button type="button" onClick={approve} disabled={critical > 0} title={critical > 0 ? `${critical} CRITICAL findings unresolved` : "Approve design"}>
                 Approve design
-              </button>
-              <button onClick={requestRevision} className="rounded border px-3 py-1">
+              </Button>
+              <Button type="button" variant="secondary" size="sm" onClick={requestRevision}>
                 Request revision
-              </button>
+              </Button>
             </div>
           </div>
         </>

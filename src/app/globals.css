@@ -3,31 +3,41 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-paper text-ink-900;
+  }
   ::selection {
-    background: #f5ead0;
+    background: #ffedd5;
   }
   :focus-visible {
-    outline: 2px solid #b9861a;
+    outline: 2px solid #f97316;
     outline-offset: 2px;
   }
   /* Unified data tables (dashboard, projects, materials, evaluations, admin). */
   table thead th {
-    @apply px-3 py-2 text-left text-xs font-semibold uppercase tracking-widest text-stone-500;
+    @apply px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-ink-500;
   }
   table tbody td {
-    @apply px-3 py-2;
+    @apply px-3 py-3 align-middle;
   }
   table tbody tr {
-    @apply border-b border-stone-100 transition-colors last:border-0 hover:bg-paper;
+    @apply border-b border-stone-100 transition-colors last:border-0 hover:bg-brand-50/40;
   }
 }
 
 @layer components {
   /* Form controls — apply explicitly (never to checkboxes/radios). */
   .input {
-    @apply w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-stone-400 focus:border-brass-500 focus:outline-none focus:ring-2 focus:ring-brass-200;
+    @apply w-full rounded-xl border border-stone-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 shadow-sm placeholder:text-ink-400 focus:border-brand-400 focus:outline-none focus:ring-4 focus:ring-brand-100;
   }
   select.input {
-    @apply pr-8;
+    @apply pr-9;
+  }
+  /* Elevated content panel — the reference's rounded white card. */
+  .panel {
+    @apply rounded-2xl border border-stone-200/80 bg-white shadow-card;
   }
 }

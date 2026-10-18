@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
 
 export interface BriefValues {
   id?: string;
@@ -98,10 +99,10 @@ export default function BriefForm({
     }
   }
 
-  const input = "mt-1 w-full rounded border px-3 py-2";
+  const input = "input mt-1";
   const field = (id: string, label: string, node: React.ReactNode) => (
     <div key={id}>
-      <label htmlFor={id} className="text-sm font-medium">{label}</label>
+      <label htmlFor={id} className="text-sm font-medium text-ink-700">{label}</label>
       {node}
     </div>
   );
@@ -144,23 +145,23 @@ export default function BriefForm({
       ))}
       {field("budget", "Budget", (
         <div className="mt-1 flex gap-2">
-          <input id="budget" type="number" min="0" step="0.01" value={form.budget} onChange={(e) => set("budget", e.target.value)} placeholder="30000" className="w-full rounded border px-3 py-2" />
-          <input value={form.currency} onChange={(e) => set("currency", e.target.value)} aria-label="Currency" className="w-20 rounded border px-2 py-2" />
+          <input id="budget" type="number" min="0" step="0.01" value={form.budget} onChange={(e) => set("budget", e.target.value)} placeholder="30000" className="input" />
+          <input value={form.currency} onChange={(e) => set("currency", e.target.value)} aria-label="Currency" className="input w-20" />
         </div>
       ))}
       {field("gender", "Gender presentation", (
         <input id="gender" value={form.genderPresentation} onChange={(e) => set("genderPresentation", e.target.value)} className={input} />
       ))}
       <div className="md:col-span-2">
-        <label htmlFor="description" className="text-sm font-medium">Description</label>
+        <label htmlFor="description" className="text-sm font-medium text-ink-700">Description</label>
         <textarea id="description" rows={2} value={form.description} onChange={(e) => set("description", e.target.value)} className={input} />
       </div>
       <div className="md:col-span-2 flex items-center gap-3">
-        <button type="submit" disabled={pending} className="rounded bg-black px-4 py-2 text-sm text-white disabled:opacity-50">
+        <Button type="submit" disabled={pending}>
           {pending ? "Saving…" : brief?.id ? "Save Brief" : "Create Brief"}
-        </button>
-        {error && <p className="text-sm text-red-700">{error}</p>}
-        {saved && <p className="text-sm text-green-700">Saved.</p>}
+        </Button>
+        {error && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+        {saved && <p className="text-sm font-medium text-green-700">Saved.</p>}
       </div>
     </form>
   );
