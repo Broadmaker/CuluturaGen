@@ -515,7 +515,8 @@ supplier integration, mobile app.
   priceless). Codes are now `CE-DEMO-*` / `MAT-DEMO-*` / `REF-DEMO-*`; every
   description states it is fictional demonstration data (thesis integrity)
 - [x] `db:seed:demo-data` (culture+materials+demo in one) and
-  `db:reset:demo` (FK-safe removal of DEMO/SAMPLE + smoke rows; fixes the
+  `db:reset:demo` (FK-safe removal of DEMO/SAMPLE codes, "Smoke …" records and
+  throwaway `designer*@test.local` accounts; fixes the
   `design_versions.parent_version_id` and `ai_jobs.project_id` NO-ACTION
   blockers) for clean re-seeding; `seed-demo.ts` + all 12 smoke scripts and
   docs updated to the new identifiers

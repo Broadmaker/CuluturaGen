@@ -1,9 +1,10 @@
-// Removes demo/seed rows (SAMPLE and DEMO coded) plus the smoke projects, in
-// FK-safe order, so the demo seeds can be re-run cleanly.
+// Removes demo/seed rows (SAMPLE and DEMO coded) plus everything the smoke
+// scripts create, in FK-safe order, so the demo seeds can be re-run cleanly.
 // Run: pnpm run db:reset:demo
 //
 // Scoped: only rows created by the demo seeds and the smoke scripts are
-// touched. Real user data is left alone.
+// touched (DEMO/SAMPLE codes, "Smoke ..." names, designer*@test.local users).
+// Real user data is left alone.
 import "dotenv/config";
 import { sql } from "drizzle-orm";
 import { db } from "../src/lib/db/client";
@@ -11,13 +12,15 @@ import { db } from "../src/lib/db/client";
 const P = "(SELECT id FROM projects WHERE project_code LIKE 'DEMO-%' OR name LIKE 'Smoke %')";
 const D = `(SELECT id FROM designs WHERE project_id IN ${P})`;
 const V = `(SELECT id FROM design_versions WHERE design_id IN ${D})`;
-const EL = "(SELECT id FROM cultural_elements WHERE element_code LIKE 'CE-SAMPLE-%' OR element_code LIKE 'CE-DEMO-%')";
-const MAT = "(SELECT id FROM materials WHERE material_code LIKE 'MAT-SAMPLE-%' OR material_code LIKE 'MAT-DEMO-%')";
+const EL =
+  "(SELECT id FROM cultural_elements WHERE element_code LIKE 'CE-SAMPLE-%' OR element_code LIKE 'CE-DEMO-%' OR name LIKE 'Smoke %')";
+const MAT =
+  "(SELECT id FROM materials WHERE material_code LIKE 'MAT-SAMPLE-%' OR material_code LIKE 'MAT-DEMO-%' OR name LIKE 'Smoke %')";
 const CUL =
   "(SELECT id FROM cultures WHERE name IN ('SAMPLE Culture A','SAMPLE Culture B','Amihan Highland Weavers','Sinag Coastal Weavers'))";
 const COM = `(SELECT id FROM communities WHERE culture_id IN ${CUL})`;
 const REF =
-  "(SELECT id FROM cultural_references WHERE reference_code LIKE 'REF-SAMPLE-%' OR reference_code LIKE 'REF-DEMO-%')";
+  "(SELECT id FROM cultural_references WHERE reference_code LIKE 'REF-SAMPLE-%' OR reference_code LIKE 'REF-DEMO-%' OR title LIKE 'Smoke %')";
 
 const STATEMENTS = [
   // 0. Break the design_versions self-reference (V2→V1 parent link) so the
@@ -47,6 +50,8 @@ const STATEMENTS = [
   `DELETE FROM communities WHERE id IN ${COM}`,
   `DELETE FROM cultures WHERE id IN ${CUL}`,
   `DELETE FROM cultural_references WHERE id IN ${REF}`,
+  // 4. Throwaway accounts registered by the smoke scripts (sessions cascade).
+  `DELETE FROM users WHERE email LIKE 'designer%@test.local'`,
 ];
 
 async function main() {
