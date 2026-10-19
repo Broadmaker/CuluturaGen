@@ -1,8 +1,8 @@
 # Thesis Defense Demo Guide (md/10 §125–126)
 
 > One-command setup, ~10-minute walkthrough, guaranteed-good final state.
-> Mock-first: $0 spend, works offline. SAMPLE placeholders throughout —
-> say so on the record before showing cultural data.
+> Mock-first: $0 spend, works offline. The "Amihan" and "Sinag" cultures are
+> FICTIONAL demo data (DEMO-coded) — say so on the record before showing it.
 
 ## Setup (day before)
 
@@ -10,16 +10,15 @@
 pnpm install
 pnpm run db:migrate
 pnpm run db:seed                    # roles + admin@attirelab.local / Admin123!
-pnpm exec tsx scripts/seed-sample-culture.ts
-pnpm exec tsx scripts/seed-sample-materials.ts
-pnpm exec tsx scripts/seed-demo.ts  # full §125 loop, prints the project URL
+pnpm run db:seed:demo-data          # culture + materials + full §125 demo loop
 pnpm run dev                        # login: admin@attirelab.local / Admin123!
 ```
 
-`seed-demo.ts` is idempotent (re-run → skip). To rebuild from zero, delete
-project `DEMO-FESTIVAL-01` and re-run. It builds the **final state**:
-project COMPLETED, design FINAL, cost UNDER_BUDGET (₱11,770 of ₱25,000),
-evaluation with findings reviewed, FINAL_REPORT dossier PDF.
+`db:seed:demo-data` is idempotent (re-run → skip). To rebuild from zero,
+`pnpm run db:reset:demo` first (removes DEMO/SAMPLE + smoke rows), then
+re-run. It builds the **final state**: project COMPLETED, design FINAL, cost
+UNDER_BUDGET (₱11,110 of ₱25,000), evaluation with findings reviewed,
+FINAL_REPORT dossier PDF.
 
 ## The 10-minute walkthrough (§126, 16 screens)
 
@@ -31,7 +30,7 @@ evaluation with findings reviewed, FINAL_REPORT dossier PDF.
 | 04 | Cultural Research | Search "textile": VERIFIED badge, sources, RESTRICTED ornament + ceremony-only rule | 1:00 |
 | 05 | Design Requirements | MANDATORY textile/motif, PREFERRED silhouette, RESTRICTED ornament | 0:40 |
 | 06 | Body Profile | MANUAL measurements, designer-verified flag; ESTIMATED vs MANUAL distinction | 0:40 |
-| 07 | Materials | SAMPLE textile ₱850/m price history (append-only, never overwritten) | 0:30 |
+| 07 | Materials | Handwoven ikat panel ₱850/m price history (append-only, never overwritten) | 0:30 |
 | 08 | Design Studio | 3-panel workspace, V1 provenance (mock provider labeled) | 0:40 |
 | 09 | Generate | **Live click**: regenerate-with-instruction → V2 (mock, instant) | 1:00 |
 | 10 | AI Result | Spec: cultural element IDs validated (unknowns dropped, never laundered) | 0:40 |
@@ -60,5 +59,6 @@ evaluation with findings reviewed, FINAL_REPORT dossier PDF.
 2. **DB empty on the day** → re-run the 6 setup commands (2 min); the
    seed prints every artifact ID it creates.
 3. **Forgot the URL** → `seed-demo.ts` prints `/projects/<id>` on every run.
-4. **"Is this real cultural data?"** → No — every record is SAMPLE-prefixed
-   (md/10 §19); verified scholarship replaces it before real use.
+4. **"Is this real cultural data?"** → No — the Amihan/Sinag cultures are
+   fictional and every record is DEMO-coded (md/10 §19); verified scholarship
+   replaces it before real use.

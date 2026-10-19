@@ -20,7 +20,7 @@
   traversal), validation badges, workflow (UNVERIFIED→UNDER_REVIEW→VERIFIED,
   RESTRICTED/DEPRECATED, role-gated), detail page (sources, restrictions,
   associations, related), Add-to-Project basket on project pages
-- [x] SAMPLE-prefixed demo data (thesis-safe placeholders, not real knowledge)
+- [x] DEMO-coded demo data (fictional Amihan/Sinag cultures, thesis-safe — not real knowledge)
 - [x] typecheck + build + smoke-mvp2.mjs 24/24 (smoke-mvp1.mjs still 9/9)
 
 ## MVP 3 — Design Brief ✅ built + verified
@@ -48,7 +48,7 @@
 
 ## MVP 5 — Cost Engine ✅ built + verified (deterministic, md/06)
 - [x] Materials library (search/filter/detail) + append-only price history
-  (new rows, never overwrite); 4 SAMPLE materials incl. price history + priceless
+  (new rows, never overwrite); 4 demo materials incl. price history + priceless
 - [x] CostService: AI suggests, engine calculates — material resolution from
   latest prices, labor/decoration/other lines, contingency, budget variance +
   status thresholds (env-configurable, never hard-coded)
@@ -474,5 +474,59 @@ supplier integration, mobile app.
   propagation, and image b64 decode; 170/170 vitest
 - [ ] Live OpenAI call still unverified (needs a funded key — one mock-cost
   generation ≈ $0.05–0.10); flip `AI_PROVIDER=openai`, no code change
+
+## Dashboard insights + a11y/responsive pass ✅ built + live-verified (md/08 §5, §68)
+- [x] Dashboard gains reference-style insight sections (all real queries, no
+  invented numbers): **Activity trend** (new projects + designs, 8 weeks,
+  dual-line SVG area chart), **Portfolio completion** gauge (completed /
+  total projects), **Most-referenced motifs** ranking (basket → element
+  counts, links to culture search), and **Generation activity** (ai_usage
+  calls + estimated USD; unpriced calls named, never costed)
+- [x] New pure-SVG primitives in `dashboard/Charts.tsx`: `AreaTrend`
+  (grid + gradient fill + legend + `sr-only` data table), `GoalGauge`
+  (semicircle, aria-labelled), `RankBars`; `StatCard` gains a `featured`
+  tinted variant (first card); all new charts carry `role="img"` + labels
+- [x] Accessibility: **skip-to-content** link + `#main` landmark in the app
+  shell; muted text raised from `ink-400` (~2.5:1) to `ink-500` (~4.8:1)
+  app-wide and orange eyebrows `brand-600`→`brand-700` (~5.2:1) to clear
+  WCAG AA; `prefers-reduced-motion` disables animations/transitions
+  (global CSS); chart axis labels darkened
+- [x] Responsive: unwrapped tables (dashboard recent-projects, admin users,
+  material price history) now scroll horizontally instead of overflowing;
+  StatCard grid, charts and tables already collapse to one column on mobile
+- [x] Two red-in-tree bugs fixed: `session.ts` called React `cache()` at
+  module load → `cache is not a function` in plain Node (broke
+  `tests/unit/auth.test.ts`); now degrades to an identity wrapper. Live
+  `OpenAIProvider.generateImage` signature now matches the `DesignProvider`
+  contract (2nd param), clearing the `ai-live-path.test.ts` typecheck errors
+- [x] Verified: `tsc --noEmit` clean; production build green (shared JS
+  unchanged, 87.1 kB); **170/170 vitest** (was 163 + 1 failed suite);
+  standalone server boots — `/`, `/login`, `/api/health` 200, `/dashboard`
+  307→login for anon; smoke-mvp1 **9/9** incl. authenticated dashboard 200;
+  new sections confirmed present in served HTML
+
+## Readable demo data + faster dev ✅ built + verified (md/08, md/10 §125)
+- [x] Replaced the "Sample X" placeholders with a coherent, readable dataset:
+  fictional **Amihan Highland Weavers** / **Sinag Coastal Weavers** cultures,
+  guild communities, a museum/oral-history/journal reference set, 7 named
+  elements ("Ikat Ceremonial Wrap", "Fern-Spine Motif", "Festival Barong",
+  "Ancestral Headdress Ornament", …) and 4 named materials ("Handwoven Ikat
+  Panel" ₱850/m history, "Mother-of-Pearl Beads", "Heirloom Tapestry Cloth"
+  priceless). Codes are now `CE-DEMO-*` / `MAT-DEMO-*` / `REF-DEMO-*`; every
+  description states it is fictional demonstration data (thesis integrity)
+- [x] `db:seed:demo-data` (culture+materials+demo in one) and
+  `db:reset:demo` (FK-safe removal of DEMO/SAMPLE + smoke rows; fixes the
+  `design_versions.parent_version_id` and `ai_jobs.project_id` NO-ACTION
+  blockers) for clean re-seeding; `seed-demo.ts` + all 12 smoke scripts and
+  docs updated to the new identifiers
+- [x] Dev latency fixed: `pnpm dev` now runs `next dev --turbo` — first-visit
+  route compile dropped from **8.4 s → ~1 s** (`/dashboard` 8.4s→0.8s, others
+  ~1.1–1.6s). This was the "~6 s per click": dev-mode on-demand webpack
+  compilation, worse when the file-deleter wipes `.next`. `pnpm dev:webpack`
+  kept as a fallback
+- [x] Verified: `tsc --noEmit` clean; reset+reseed rebuilt DEMO-FESTIVAL-01
+  end-to-end (cost ₱11,110 UNDER_BUDGET, FINAL, report PDF); **all 12 smokes
+  exit 0** with zero FAILs incl. the retrieval exact-name hit now
+  ("Ikat Ceremonial Wrap"); 170/170 vitest unaffected
 
 ## Definition of done (DB): md/03 §84. UX acceptance: md/08 §125.
