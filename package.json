@@ -4,6 +4,9 @@
   "private": true,
   "description": "Human-AI Collaborative Cultural Attire Design Platform — Master's Thesis Prototype",
   "packageManager": "pnpm@10.34.3",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "next dev --turbo",
     "dev:webpack": "next dev",

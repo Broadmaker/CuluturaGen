@@ -8,8 +8,10 @@ const nextConfig = {
   // Rendering hygiene: no X-Powered-By fingerprint, default compression on.
   poweredByHeader: false,
   compress: true,
-  // Standalone server output (.next/standalone/server.js) for host-Node deploys.
-  output: 'standalone',
+  // Standalone output (.next/standalone/server.js) is for host-Node/self-host
+  // deploys. Vercel builds and runs Next.js itself and does not consume it
+  // (`next start` even warns), so only emit it outside Vercel.
+  output: process.env.VERCEL ? undefined : 'standalone',
   experimental: {
     instrumentationHook: true,
     serverActions: {
