@@ -11,3 +11,6 @@ storage/users/*
 storage/projects/*
 !storage/users/.gitkeep
 !storage/projects/**/.gitkeep
+
+.vercel
+.env*
