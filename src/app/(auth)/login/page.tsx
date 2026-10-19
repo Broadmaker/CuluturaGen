@@ -79,7 +79,7 @@ function LoginForm() {
           </p>
         </div>
         <div className="flex flex-col justify-center bg-white px-8 py-10">
-          <p className="text-xs font-semibold uppercase tracking-widest text-brand-600 md:hidden">
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-700 md:hidden">
             AttireLab
           </p>
           <h1 className="mt-1 font-display text-3xl font-bold text-ink-950">Log in</h1>

@@ -20,7 +20,7 @@ export default function Card({
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             {eyebrow && (
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-600">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-700">
                 {eyebrow}
               </p>
             )}

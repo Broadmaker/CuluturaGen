@@ -34,7 +34,7 @@ export default function DistributionList({
               </span>
               <span className="tabular-nums text-ink-600">
                 {item.value}
-                <span className="ml-1.5 text-xs text-ink-400">{pct}%</span>
+                <span className="ml-1.5 text-xs text-ink-500">{pct}%</span>
               </span>
             </div>
             <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-stone-100">

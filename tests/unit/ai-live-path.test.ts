@@ -47,7 +47,7 @@ describe("OpenAIProvider (stubbed fetch)", () => {
     expect(result.spec.designName).toBe("Test Concept");
     expect(result.usage).toEqual({ inputTokens: 100, outputTokens: 200 });
     expect(p.models).toEqual({ spec: "gpt-4o-mini", image: "gpt-image-1" });
-    const [, opts] = fetchSpy.mock.calls[0] as [string, { body: string }];
+    const [, opts] = fetchSpy.mock.calls[0] as unknown as [string, { body: string }];
     expect(JSON.parse(opts.body)).toMatchObject({ model: "gpt-4o-mini" });
   });
 

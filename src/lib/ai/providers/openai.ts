@@ -1,6 +1,6 @@
 import type { BuiltContext } from "../context-builder";
 import type { Constraints } from "../constraint-engine";
-import { DESIGN_SPEC_JSON_SCHEMA, designSpecSchema } from "../spec-schema";
+import { DESIGN_SPEC_JSON_SCHEMA, designSpecSchema, type DesignSpec } from "../spec-schema";
 import type { DesignProvider, ImageResult, SpecResult } from "../provider";
 
 // Live OpenAI provider — DORMANT until AI_PROVIDER=openai with keys set.
@@ -65,7 +65,9 @@ export class OpenAIProvider implements DesignProvider {
     };
   }
 
-  async generateImage(imagePrompt: string): Promise<ImageResult> {
+  // `_spec` is part of the DesignProvider contract; the image prompt already
+  // encodes the spec, so the live provider renders from the prompt alone.
+  async generateImage(imagePrompt: string, _spec: DesignSpec): Promise<ImageResult> {
     const res = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
       headers: {

@@ -27,6 +27,12 @@ export default async function AppLayout({
 
   return (
     <div className="min-h-screen bg-paper md:flex">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-brand-500 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-pop"
+      >
+        Skip to content
+      </a>
       <aside className="hidden w-64 shrink-0 flex-col border-r border-stone-200/80 bg-white md:flex">
         <div className="flex items-center gap-2.5 px-5 py-5">
           <span
@@ -39,7 +45,7 @@ export default async function AppLayout({
             <span className="block font-display text-xl font-bold leading-none text-ink-950">
               AttireLab
             </span>
-            <span className="mt-1 block text-[11px] font-medium uppercase tracking-widest text-ink-400">
+            <span className="mt-1 block text-[11px] font-medium uppercase tracking-widest text-ink-500">
               Heritage design lab
             </span>
           </span>
@@ -47,7 +53,7 @@ export default async function AppLayout({
         <nav className="flex-1 space-y-6 overflow-y-auto px-3 pb-4 pt-2" aria-label="Main">
           {groups.map((g) => (
             <div key={g.key}>
-              <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-widest text-ink-400">
+              <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-widest text-ink-500">
                 {NAV_GROUPS[g.key]}
               </p>
               <div className="space-y-1">
@@ -106,7 +112,9 @@ export default async function AppLayout({
             }
           />
         </div>
-        {children}
+        <div id="main" className="min-w-0 flex-1">
+          {children}
+        </div>
       </div>
     </div>
   );

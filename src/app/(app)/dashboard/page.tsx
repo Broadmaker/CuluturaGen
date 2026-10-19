@@ -8,6 +8,10 @@ import { NavIcons } from "@/components/layout/icons";
 import {
   ChartsRow,
   ChartsRowFallback,
+  InsightsRow,
+  InsightsRowFallback,
+  RankingsRow,
+  RankingsRowFallback,
   StatRow,
   StatRowFallback,
   TablesRow,
@@ -49,6 +53,10 @@ export default async function DashboardPage() {
         <StatRow />
       </Suspense>
 
+      <Suspense fallback={<InsightsRowFallback />}>
+        <InsightsRow />
+      </Suspense>
+
       <Card eyebrow="Workflow" title="How a project flows">
         <ol className="mt-1 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
           {FLOW.map((s) => (
@@ -69,6 +77,10 @@ export default async function DashboardPage() {
           ))}
         </ol>
       </Card>
+
+      <Suspense fallback={<RankingsRowFallback />}>
+        <RankingsRow />
+      </Suspense>
 
       <Suspense fallback={<ChartsRowFallback />}>
         <ChartsRow />

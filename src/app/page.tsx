@@ -67,7 +67,7 @@ export default function Home() {
               <span className="block font-display text-lg font-bold leading-none text-ink-950">
                 AttireLab
               </span>
-              <span className="mt-1 block text-[11px] font-medium uppercase tracking-widest text-ink-400">
+              <span className="mt-1 block text-[11px] font-medium uppercase tracking-widest text-ink-500">
                 Heritage design lab
               </span>
             </span>
@@ -134,7 +134,7 @@ export default function Home() {
                     <dt className="font-display text-3xl font-bold text-ink-950">
                       {s.value}
                     </dt>
-                    <dd className="mt-1 text-xs font-medium uppercase tracking-widest text-ink-400">
+                    <dd className="mt-1 text-xs font-medium uppercase tracking-widest text-ink-500">
                       {s.label}
                     </dd>
                   </div>
@@ -147,7 +147,7 @@ export default function Home() {
               <div className="rounded-3xl border border-stone-200/80 bg-white p-5 shadow-pop">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-600">
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-700">
                       Studio
                     </p>
                     <p className="font-display text-lg font-bold text-ink-950">
@@ -169,7 +169,7 @@ export default function Home() {
                       key={t.label}
                       className="rounded-2xl border border-stone-200/80 bg-paper/60 px-3 py-3"
                     >
-                      <p className="text-[11px] font-semibold uppercase tracking-widest text-ink-400">
+                      <p className="text-[11px] font-semibold uppercase tracking-widest text-ink-500">
                         {t.label}
                       </p>
                       <p className={`mt-1 font-display text-xl font-bold ${t.tone}`}>
@@ -188,7 +188,7 @@ export default function Home() {
                     <li key={row.label}>
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-medium text-ink-700">{row.label}</span>
-                        <span className="tabular-nums text-ink-400">{row.pct}%</span>
+                        <span className="tabular-nums text-ink-500">{row.pct}%</span>
                       </div>
                       <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-stone-100">
                         <div
@@ -226,7 +226,7 @@ export default function Home() {
         {/* Workflow */}
         <section className="border-y border-stone-200/70 bg-white px-6 py-16">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">
+            <p className="text-xs font-semibold uppercase tracking-widest text-brand-700">
               The workflow
             </p>
             <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink-950">
@@ -262,7 +262,7 @@ export default function Home() {
         {/* Features */}
         <section className="px-6 py-16">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">
+            <p className="text-xs font-semibold uppercase tracking-widest text-brand-700">
               Why AttireLab
             </p>
             <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink-950">

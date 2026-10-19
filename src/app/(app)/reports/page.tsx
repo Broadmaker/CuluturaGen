@@ -157,7 +157,7 @@ export default async function ReportsPage({
                             Download PDF
                           </a>
                         ) : (
-                          <span className="text-xs text-ink-400">Not available</span>
+                          <span className="text-xs text-ink-500">Not available</span>
                         )}
                       </td>
                     </tr>

@@ -80,7 +80,7 @@ export default async function ElementDetailPage({
           {sections.map(([label, value]) =>
             value ? (
               <div key={label} className="mt-3">
-                <p className="text-xs font-semibold uppercase tracking-widest text-ink-400">{label}</p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-ink-500">{label}</p>
                 <p className="mt-1 text-sm text-ink-800">{value}</p>
               </div>
             ) : null,

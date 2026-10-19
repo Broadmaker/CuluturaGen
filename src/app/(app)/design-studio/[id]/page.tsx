@@ -118,7 +118,7 @@ export default async function DesignStudioPage({
         <aside className="rounded-2xl border border-stone-200/80 bg-white p-5 text-sm shadow-card">
           <h2 className="font-display text-lg font-bold text-ink-950">CONTEXT</h2>
           <div className="mt-2">
-            <p className="text-xs font-semibold uppercase tracking-widest text-ink-400">Versions</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-ink-500">Versions</p>
             <ul className="mt-1 space-y-1">
               {ascVersions.map((v) => (
                 <li key={v.id} className="flex items-center gap-2">
@@ -135,7 +135,7 @@ export default async function DesignStudioPage({
             </ul>
           </div>
           <div className="mt-3">
-            <p className="text-xs font-semibold uppercase tracking-widest text-ink-400">Generation</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-ink-500">Generation</p>
             <ul className="mt-1 space-y-1 text-xs">
               {jobs.map((j) => (
                 <li key={j.id} className="flex flex-wrap items-center gap-1">
@@ -175,11 +175,11 @@ export default async function DesignStudioPage({
               <h2 className="font-display text-lg font-bold text-ink-950">DESIGN SPECIFICATION</h2>
               <dl className="mt-2 space-y-2">
                 <div>
-                  <dt className="text-xs font-semibold uppercase tracking-widest text-ink-400">Silhouette</dt>
+                  <dt className="text-xs font-semibold uppercase tracking-widest text-ink-500">Silhouette</dt>
                   <dd>{spec.silhouette.type} — {spec.silhouette.description}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-semibold uppercase tracking-widest text-ink-400">Garments</dt>
+                  <dt className="text-xs font-semibold uppercase tracking-widest text-ink-500">Garments</dt>
                   <dd>
                     <ul className="list-disc pl-5">
                       {spec.garmentComponents.map((g) => (
@@ -190,19 +190,19 @@ export default async function DesignStudioPage({
                 </div>
                 {spec.textiles.length > 0 && (
                   <div>
-                    <dt className="text-xs font-semibold uppercase tracking-widest text-ink-400">Textiles</dt>
+                    <dt className="text-xs font-semibold uppercase tracking-widest text-ink-500">Textiles</dt>
                     <dd>{spec.textiles.join(", ")}</dd>
                   </div>
                 )}
                 {spec.colors.length > 0 && (
                   <div>
-                    <dt className="text-xs font-semibold uppercase tracking-widest text-ink-400">Colors</dt>
+                    <dt className="text-xs font-semibold uppercase tracking-widest text-ink-500">Colors</dt>
                     <dd>{spec.colors.map((c) => c.name).join(", ")}</dd>
                   </div>
                 )}
                 {spec.constructionNotes.length > 0 && (
                   <div>
-                    <dt className="text-xs font-semibold uppercase tracking-widest text-ink-400">Construction</dt>
+                    <dt className="text-xs font-semibold uppercase tracking-widest text-ink-500">Construction</dt>
                     <dd>
                       <ul className="list-disc pl-5">
                         {spec.constructionNotes.map((n, i) => (
@@ -214,7 +214,7 @@ export default async function DesignStudioPage({
                 )}
                 {spec.bodyConsiderations.length > 0 && (
                   <div>
-                    <dt className="text-xs font-semibold uppercase tracking-widest text-ink-400">Body considerations</dt>
+                    <dt className="text-xs font-semibold uppercase tracking-widest text-ink-500">Body considerations</dt>
                     <dd>
                       <ul className="list-disc pl-5">
                         {spec.bodyConsiderations.map((n, i) => (

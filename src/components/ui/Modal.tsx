@@ -56,7 +56,7 @@ export default function Modal({
               type="button"
               onClick={onClose}
               aria-label="Close dialog"
-              className="-mr-1 -mt-1 shrink-0 rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-50 hover:text-ink-700"
+              className="-mr-1 -mt-1 shrink-0 rounded-lg p-1.5 text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-700"
             >
               <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
                 <path

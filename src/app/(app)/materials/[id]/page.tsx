@@ -35,19 +35,19 @@ export default async function MaterialDetailPage({
 
       <dl className="mt-6 grid max-w-3xl grid-cols-1 gap-3 text-sm sm:grid-cols-2">
         <div className="rounded-xl border border-stone-200/80 bg-white px-4 py-3 shadow-card">
-          <dt className="text-xs font-semibold uppercase tracking-widest text-ink-400">Unit</dt>
+          <dt className="text-xs font-semibold uppercase tracking-widest text-ink-500">Unit</dt>
           <dd className="mt-1 text-ink-900">{material.unit ?? "—"}</dd>
         </div>
         <div className="rounded-xl border border-stone-200/80 bg-white px-4 py-3 shadow-card">
-          <dt className="text-xs font-semibold uppercase tracking-widest text-ink-400">Supplier</dt>
+          <dt className="text-xs font-semibold uppercase tracking-widest text-ink-500">Supplier</dt>
           <dd className="mt-1 text-ink-900">{material.supplier ?? "—"}</dd>
         </div>
         <div className="rounded-xl border border-stone-200/80 bg-white px-4 py-3 shadow-card">
-          <dt className="text-xs font-semibold uppercase tracking-widest text-ink-400">Cultural association</dt>
+          <dt className="text-xs font-semibold uppercase tracking-widest text-ink-500">Cultural association</dt>
           <dd className="mt-1 text-ink-900">{material.culturalAssociation ?? "—"}</dd>
         </div>
         <div className="rounded-xl border border-stone-200/80 bg-white px-4 py-3 shadow-card">
-          <dt className="text-xs font-semibold uppercase tracking-widest text-ink-400">Minimum qty</dt>
+          <dt className="text-xs font-semibold uppercase tracking-widest text-ink-500">Minimum qty</dt>
           <dd className="mt-1 text-ink-900">{material.minimumQuantity ?? "—"}</dd>
         </div>
       </dl>
@@ -57,7 +57,7 @@ export default async function MaterialDetailPage({
         {prices.length === 0 ? (
           <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-700">⚠ No verified price — designs using this material will report INCOMPLETE.</p>
         ) : (
-          <div className="mt-3 overflow-hidden rounded-2xl border border-stone-200/80">
+          <div className="mt-3 overflow-x-auto rounded-2xl border border-stone-200/80">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left">

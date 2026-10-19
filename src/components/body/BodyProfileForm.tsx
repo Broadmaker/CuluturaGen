@@ -116,7 +116,7 @@ export default function BodyProfileForm({
         {BODY_FIELDS.map((f) => (
           <div key={f.key}>
             <label htmlFor={f.key} className="text-sm font-medium text-ink-700">
-              {f.label} <span className="text-ink-400">({f.unit})</span>
+              {f.label} <span className="text-ink-500">({f.unit})</span>
             </label>
             <input
               id={f.key}

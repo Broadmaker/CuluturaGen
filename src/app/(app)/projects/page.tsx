@@ -54,7 +54,7 @@ export default async function ProjectsPage({
         <div className="relative min-w-56 flex-1">
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-400"
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-500"
           >
             {NavIcons.search}
           </span>
@@ -118,7 +118,7 @@ export default async function ProjectsPage({
                       >
                         {p.name}
                       </Link>
-                      <p className="mt-0.5 font-mono text-xs text-ink-400">{p.projectCode}</p>
+                      <p className="mt-0.5 font-mono text-xs text-ink-500">{p.projectCode}</p>
                     </td>
                     <td>
                       <StatusBadge value={p.status} />

@@ -57,7 +57,7 @@ export default function NavLinks({
             className={
               isActive(i.href)
                 ? "text-white"
-                : "text-ink-400 transition-colors group-hover:text-brand-500"
+                : "text-ink-500 transition-colors group-hover:text-brand-500"
             }
           >
             {NavIcons[i.icon]}

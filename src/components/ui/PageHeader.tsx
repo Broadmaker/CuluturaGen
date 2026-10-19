@@ -16,7 +16,7 @@ export default function PageHeader({
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div className="min-w-0">
         {eyebrow && (
-          <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-700">
             {eyebrow}
           </p>
         )}

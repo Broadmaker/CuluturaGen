@@ -65,7 +65,7 @@ export default function Pagination({
         )}
         {pages.map((p, i) =>
           p === -1 ? (
-            <span key={`gap-${i}`} className="px-1 text-ink-400">
+            <span key={`gap-${i}`} className="px-1 text-ink-500">
               …
             </span>
           ) : (

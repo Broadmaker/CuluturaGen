@@ -1,6 +1,11 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cache } from "react";
 import { cookies } from "next/headers";
+// React's request-scoped `cache` ships in the Next server runtime but is absent
+// in plain Node (unit tests, scripts) — fall back to the identity function so
+// this module stays importable there instead of throwing at load time.
+const memoize = <F extends (...args: never[]) => unknown>(fn: F): F =>
+  typeof cache === "function" ? (cache(fn) as F) : fn;
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { users } from "@/lib/db/schema";
@@ -86,7 +91,7 @@ export interface SessionUser {
 // Memoized per request: the (app) layout and the page each call this, and
 // several components call it again — React `cache` collapses them into a
 // single DB round trip so tab navigation stays snappy.
-export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
+export const getSessionUser = memoize(async (): Promise<SessionUser | null> => {
   const token = cookies().get(SESSION_COOKIE)?.value;
   const payload = verifySessionToken(token);
   if (!payload) return null;

@@ -90,7 +90,7 @@ export default async function MaterialsPage({
                   <tr key={m.id} className="border-t border-stone-100">
                     <td className="px-3 py-2.5 font-medium">
                       <Link href={`/materials/${m.id}`} className="font-medium text-ink-800 underline-offset-2 hover:text-brand-600 hover:underline">{m.name}</Link>
-                      <span className="ml-2 font-mono text-xs text-ink-400">{m.materialCode}</span>
+                      <span className="ml-2 font-mono text-xs text-ink-500">{m.materialCode}</span>
                     </td>
                     <td className="px-3 py-2.5">{m.category ?? "—"}</td>
                     <td className="px-3 py-2.5">

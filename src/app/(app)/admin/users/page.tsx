@@ -177,6 +177,7 @@ export default async function AdminUsersPage({
               </p>
             </div>
           ) : (
+            <div className="overflow-x-auto">
             <table className="mt-1 w-full text-sm">
               <thead>
                 <tr className="border-b border-stone-200">
@@ -215,7 +216,7 @@ export default async function AdminUsersPage({
                               </span>
                             ))
                           ) : (
-                            <span className="text-ink-400">—</span>
+                            <span className="text-ink-500">—</span>
                           )}
                         </span>
                       </td>
@@ -236,6 +237,7 @@ export default async function AdminUsersPage({
                 })}
               </tbody>
             </table>
+            </div>
           )}
 
           {rows.length > 0 && (

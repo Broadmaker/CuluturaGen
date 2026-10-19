@@ -51,7 +51,7 @@ export default async function ProjectDetailPage({
 
   return (
     <main className="w-full space-y-5 p-6">
-      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-ink-400">
+      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-ink-500">
         <Link href="/projects" className="hover:text-brand-600">Projects</Link>
         <span aria-hidden="true">/</span>
         <span className="font-mono text-xs text-ink-500">{project.projectCode}</span>
@@ -87,7 +87,7 @@ export default async function ProjectDetailPage({
               key={t.label}
               aria-current={i === 0 ? "page" : undefined}
               className={`whitespace-nowrap rounded-xl px-3.5 py-2 text-sm font-medium ${
-                i === 0 ? "bg-brand-500 text-white shadow-sm shadow-brand-500/30" : "text-ink-400"
+                i === 0 ? "bg-brand-500 text-white shadow-sm shadow-brand-500/30" : "text-ink-500"
               }`}
             >
               {t.label}
@@ -265,7 +265,7 @@ export default async function ProjectDetailPage({
                             Download PDF
                           </a>
                         ) : (
-                          <span className="text-xs text-ink-400">Not available</span>
+                          <span className="text-xs text-ink-500">Not available</span>
                         )}
                       </td>
                     </tr>
