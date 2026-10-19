@@ -32,6 +32,15 @@ const CARDS: Record<string, PriceCard> = {
   "openai:gpt-4o-mini": { inputPerMillion: 0.15, outputPerMillion: 0.6 },
   "openai:gpt-image-1": { inputPerMillion: 0, outputPerMillion: 0, imageFlat: 0.04 },
   "openai:text-embedding-3-small": { inputPerMillion: 0.02, outputPerMillion: 0 },
+  // Google Gemini (AI Studio / Gemini API) list rates. gemini-2.5-flash-image
+  // is ~1290 output tokens/image → a flat ≈$0.039 render, documented as an
+  // ESTIMATE like the OpenAI image card. An overridden GOOGLE_MODEL with no
+  // card here is reported `unpriced`, never guessed.
+  "google:gemini-2.5-flash": { inputPerMillion: 0.3, outputPerMillion: 2.5 },
+  "google:gemini-2.5-flash-lite": { inputPerMillion: 0.1, outputPerMillion: 0.4 },
+  "google:gemini-2.0-flash": { inputPerMillion: 0.1, outputPerMillion: 0.4 },
+  "google:gemini-2.5-flash-image": { inputPerMillion: 0, outputPerMillion: 0, imageFlat: 0.039 },
+  "google:gemini-embedding-001": { inputPerMillion: 0.15, outputPerMillion: 0 },
 };
 
 export function estimateCost(u: UsageInput): CostEstimate {

@@ -29,15 +29,23 @@ export interface DesignProvider {
 
 import { MockProvider } from "./providers/mock";
 import { OpenAIProvider } from "./providers/openai";
+import { GoogleProvider } from "./providers/google";
 
-// Selected once per process from env. Mock is the safe default; the OpenAI
-// module has no import-time side effects (it throws only if instantiated
+// Selected once per process from env. Mock is the safe default; the live
+// modules have no import-time side effects (they throw only if instantiated
 // without a key), so static imports are safe here.
 let cached: DesignProvider | null = null;
 
 export function getProvider(): DesignProvider {
   if (cached) return cached;
   const which = (process.env.AI_PROVIDER || "mock").toLowerCase();
-  cached = which === "openai" ? new OpenAIProvider() : new MockProvider();
+  if (which === "openai") cached = new OpenAIProvider();
+  else if (which === "google" || which === "gemini") cached = new GoogleProvider();
+  else cached = new MockProvider();
   return cached;
+}
+
+// Test-only escape hatch.
+export function resetProvider(): void {
+  cached = null;
 }

@@ -111,7 +111,7 @@ export class AIService {
         parentVersionId,
         visualPrompt: null,
         generationSource: provider.name.toUpperCase(),
-        aiModel: process.env.AI_MODEL || provider.name,
+        aiModel: provider.models.spec,
         status: "GENERATING",
         createdBy: opts.userId,
       })
@@ -312,7 +312,7 @@ export class AIService {
         designVersionId: opts.versionId,
         jobType: opts.type,
         provider: getProvider().name,
-        model: process.env.AI_MODEL || getProvider().name,
+        model: getProvider().models.spec,
         status: "PROCESSING",
         inputPayload: opts.input as Record<string, unknown>,
         startedAt: new Date(),

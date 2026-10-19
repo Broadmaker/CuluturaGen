@@ -530,4 +530,43 @@ supplier integration, mobile app.
   exit 0** with zero FAILs incl. the retrieval exact-name hit now
   ("Ikat Ceremonial Wrap"); 170/170 vitest unaffected
 
+## Google Gemini providers (live AI without OpenAI billing) ✅ built + unit-verified
+- [x] Second live provider family behind the same interfaces — `AI_PROVIDER` /
+  `EMBEDDING_PROVIDER` / `VISION_PROVIDER` = `google` (alias `gemini`), mock
+  stays the default. No call-site changes; factories extended only
+- [x] `GoogleProvider` (`src/lib/ai/providers/google.ts`): Gemini API / AI
+  Studio simple key (`GOOGLE_API_KEY`, `GEMINI_API_KEY` fallback); Stage 1
+  spec via `responseMimeType: application/json` + `responseSchema`; Stage 2
+  image via `gemini-2.5-flash-image` inline output (`responseModalities`);
+  plain `fetch` + `x-goog-api-key`, fail-loud key checks, timeout
+- [x] `gemini-schema.ts`: converts the shared OpenAI JSON Schemas to Gemini's
+  `responseSchema` (drops `additionalProperties`/`strict`, OpenAI
+  `type:["number","null"]` → Gemini `nullable`, adds `propertyOrdering`) so
+  the design-spec and vision-estimate contracts stay single-sourced
+- [x] `GoogleEmbeddingProvider`: `gemini-embedding-001` via
+  `:batchEmbedContents` with `outputDimensionality: 1536` (matches the
+  pgvector column, **no schema change**) and explicit **L2-normalization**
+  (only Google's native 3072-dim output is pre-normalized); wrong-width
+  vectors are rejected, not stored
+- [x] `GoogleVisionProvider`: Gemini is natively multimodal → reference photo
+  as an inline image part, constrained to the same estimate schema; identical
+  thesis guardrails (no weight field, out-of-range values dropped, confidence
+  is a process marker). Shared `vision/mime.ts` (`sniffMime`/`toDataUrl`)
+  extracted from the OpenAI provider
+- [x] Spend ledger: `google:gemini-2.5-flash` / `-flash-lite` / `-2.0-flash`
+  token cards, `google:gemini-2.5-flash-image` flat image card (≈$0.039,
+  ESTIMATE), `google:gemini-embedding-001`; an overridden `GOOGLE_MODEL` with
+  no card is `unpriced` (never guessed). `ai_jobs`/version rows now record
+  `provider.models.spec` instead of a bare provider name
+- [x] `.env.example` documents all `GOOGLE_*` vars
+- [x] 14 stubbed-fetch tests (`tests/unit/google-live-path.test.ts`): no-key
+  throw, spec parse + usage, request shape, invalid-spec rejection, 400
+  propagation, image b64 decode, embedding dim + normalization, vision
+  sanitize, schema conversion, factory selection
+- [x] Verified: `tsc --noEmit` clean; production build green; **184/184 vitest**
+- [ ] Live Google call still unverified (needs an AI Studio key — Gemini
+  text/vision/embeddings are on the **free tier**; image generation may need a
+  billing-enabled project, and a missing image model degrades gracefully); set
+  `GOOGLE_API_KEY` + flip the three provider vars, no code change
+
 ## Definition of done (DB): md/03 §84. UX acceptance: md/08 §125.

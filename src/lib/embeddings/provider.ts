@@ -1,6 +1,7 @@
 import { EMBEDDING_DIMENSIONS } from "./dimensions";
 import { MockEmbeddingProvider } from "./providers/mock";
 import { OpenAIEmbeddingProvider } from "./providers/openai";
+import { GoogleEmbeddingProvider } from "./providers/google";
 
 // Embedding provider abstraction for semantic cultural retrieval
 // (md/04 §72–74, md/10 §142). The application only talks to this interface;
@@ -24,6 +25,8 @@ export function getEmbeddingProvider(): EmbeddingProvider {
   const which = (process.env.EMBEDDING_PROVIDER || "mock").toLowerCase();
   if (which === "openai" || which === "live") {
     cached = new OpenAIEmbeddingProvider();
+  } else if (which === "google" || which === "gemini") {
+    cached = new GoogleEmbeddingProvider();
   } else {
     cached = new MockEmbeddingProvider();
   }

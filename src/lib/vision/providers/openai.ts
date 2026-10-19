@@ -3,6 +3,7 @@ import {
   VISION_ESTIMATE_JSON_SCHEMA,
   parseVisionOutput,
 } from "../estimate-schema";
+import { toDataUrl } from "../mime";
 
 // Live OpenAI vision provider — DORMANT until VISION_PROVIDER=openai (or the
 // legacy alias "live") with a key set. Sends the reference photo to a
@@ -98,39 +99,6 @@ const ESTIMATE_PROMPT = [
   "confidence is your self-assessed process confidence from 0 to 1;",
   "landmarks is the number of body landmarks you detected.",
 ].join(" ");
-
-function sniffMime(bytes: Buffer): "image/jpeg" | "image/png" | "image/webp" {
-  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
-    return "image/jpeg";
-  }
-  if (
-    bytes.length >= 8 &&
-    bytes[0] === 0x89 &&
-    bytes[1] === 0x50 &&
-    bytes[2] === 0x4e &&
-    bytes[3] === 0x47 &&
-    bytes[4] === 0x0d &&
-    bytes[5] === 0x0a &&
-    bytes[6] === 0x1a &&
-    bytes[7] === 0x0a
-  ) {
-    return "image/png";
-  }
-  if (
-    bytes.length >= 12 &&
-    bytes.toString("ascii", 0, 4) === "RIFF" &&
-    bytes.toString("ascii", 8, 12) === "WEBP"
-  ) {
-    return "image/webp";
-  }
-  // Upload validation already sniffed this; default keeps the call working.
-  return "image/jpeg";
-}
-
-function toDataUrl(bytes: Buffer): string {
-  const mime = sniffMime(bytes);
-  return `data:${mime};base64,${bytes.toString("base64")}`;
-}
 
 function extractOutputText(data: {
   output_text?: string;
