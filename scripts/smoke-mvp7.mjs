@@ -39,9 +39,9 @@ const proj = await call("POST", "/api/projects", { name: "Smoke Final" }, A);
 const pid = proj.json?.data?.id;
 check("project created", proj.status === 201 && !!pid, `got ${proj.status}`);
 
-const els = await call("GET", "/api/cultural-elements?q=Sample", null, A);
-const textile = els.json?.data?.find((e) => e.name === "Sample Textile A");
-const ornament = els.json?.data?.find((e) => e.name === "Sample Ceremonial Ornament");
+const els = await call("GET", "/api/cultural-elements", null, A);
+const textile = els.json?.data?.find((e) => e.name === "Ikat Ceremonial Wrap");
+const ornament = els.json?.data?.find((e) => e.name === "Ancestral Headdress Ornament");
 await call("POST", `/api/projects/${pid}/basket`, { culturalElementId: textile.id }, A);
 await call("POST", `/api/projects/${pid}/basket`, { culturalElementId: ornament.id }, A);
 

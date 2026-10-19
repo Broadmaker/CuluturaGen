@@ -1,4 +1,4 @@
-// Retrieval smoke: hybrid ranked search (read-only — uses SAMPLE seed data).
+// Retrieval smoke: hybrid ranked search (read-only — uses demo seed data).
 // Run: node scripts/smoke-retrieval.mjs (dev server on :3100).
 const BASE = "http://localhost:3100";
 
@@ -45,10 +45,10 @@ check(
   rows.length > 0 && rows.every((r) => retrieval[r.id]?.via?.length > 0),
   `got ${Object.keys(retrieval).length} entries`,
 );
-const exact = await call("GET", "/api/cultural-elements?q=Sample%20Textile%20A", A);
+const exact = await call("GET", "/api/cultural-elements?q=Ikat%20Ceremonial%20Wrap", A);
 check(
   "exact name ranks first",
-  exact.status === 200 && exact.json?.data?.[0]?.name === "Sample Textile A",
+  exact.status === 200 && exact.json?.data?.[0]?.name === "Ikat Ceremonial Wrap",
   `got ${exact.json?.data?.[0]?.name}`,
 );
 check(

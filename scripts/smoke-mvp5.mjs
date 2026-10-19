@@ -36,17 +36,17 @@ const A = login.cookie;
 check("admin login", login.status === 200 && A.length > 0);
 
 // --- materials ---
-const lib = await call("GET", "/api/materials?q=Sample", null, A);
-const textile = lib.json?.data?.find((m) => m.materialCode === "MAT-SAMPLE-001");
-check("sample library present", lib.status === 200 && !!textile, `count=${lib.json?.data?.length}`);
+const lib = await call("GET", "/api/materials", null, A);
+const textile = lib.json?.data?.find((m) => m.materialCode === "MAT-DEMO-001");
+check("demo library present", lib.status === 200 && !!textile, `count=${lib.json?.data?.length}`);
 const P0 = textile?.latestPrice ? Number(textile.latestPrice.price) : NaN;
 check("latest price resolved", lib.status === 200 && Number.isFinite(P0) && P0 > 0, `price=${textile?.latestPrice?.price}`);
 
 const detail = await call("GET", `/api/materials/${textile.id}`, null, A);
 check("price history kept (append-only)", detail.status === 200 && detail.json?.data?.prices?.length >= 2, `got ${detail.json?.data?.prices?.length}`);
 
-const priceless = lib.json?.data?.find((m) => m.materialCode === "MAT-SAMPLE-004");
-check("priceless sample present", !!priceless);
+const priceless = lib.json?.data?.find((m) => m.materialCode === "MAT-DEMO-004");
+check("priceless demo material present", !!priceless);
 
 const created = await call("POST", "/api/materials", { name: "Smoke Linen", category: "FABRIC", unit: "meter" }, A);
 check("material create 201", created.status === 201, `got ${created.status}`);

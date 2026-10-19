@@ -9,8 +9,8 @@
 // project to rebuild). Requires: db:seed + seed-sample-culture +
 // seed-sample-materials first (asserted below with clear errors).
 //
-// THESIS INTEGRITY: SAMPLE-prefixed placeholders throughout, same as the
-// sample seeds. Nothing here is real cultural knowledge.
+// THESIS INTEGRITY: fictional DEMO-coded demonstration data throughout, same
+// as the demo seeds. Nothing here is real cultural knowledge.
 import "dotenv/config";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../src/lib/db/client";
@@ -60,17 +60,17 @@ async function main() {
   const adminId = admin.id;
 
   const need = await db.query.culturalElements.findMany({
-    where: inArray(culturalElements.elementCode, ["CE-SAMPLE-001", "CE-SAMPLE-002", "CE-SAMPLE-004"]),
+    where: inArray(culturalElements.elementCode, ["CE-DEMO-001", "CE-DEMO-002", "CE-DEMO-004"]),
     columns: { id: true, elementCode: true, name: true },
   });
-  if (need.length !== 3) throw new Error("Missing SAMPLE elements — run seed-sample-culture.ts first.");
+  if (need.length !== 3) throw new Error("Missing demo elements — run seed-sample-culture.ts first.");
   const el = Object.fromEntries(need.map((e) => [e.elementCode, e]));
 
   const mat = await db.query.materials.findFirst({
-    where: eq(materials.materialCode, "MAT-SAMPLE-001"),
+    where: eq(materials.materialCode, "MAT-DEMO-001"),
     columns: { id: true },
   });
-  if (!mat) throw new Error("Missing SAMPLE materials — run seed-sample-materials.ts first.");
+  if (!mat) throw new Error("Missing demo materials — run seed-sample-materials.ts first.");
 
   // --- Static half: client, project, body, brief, requirements, basket ---
   const [project] = await db
@@ -130,19 +130,19 @@ async function main() {
     .returning();
 
   const reqs: { category: string; requirement: string; priority: string }[] = [
-    { category: "TEXTILE", requirement: "Traditional SAMPLE textile", priority: "MANDATORY" },
-    { category: "MOTIF", requirement: "Community SAMPLE motif", priority: "MANDATORY" },
+    { category: "TEXTILE", requirement: "Use the handwoven ikat ceremonial wrap as the primary textile", priority: "MANDATORY" },
+    { category: "MOTIF", requirement: "Incorporate the fern-spine community motif", priority: "MANDATORY" },
     { category: "SILHOUETTE", requirement: "Modern structured silhouette", priority: "PREFERRED" },
     { category: "ACCESSORY", requirement: "Optional head accessory", priority: "OPTIONAL" },
-    { category: "SYMBOL", requirement: "Ceremonial ornament excluded from daily wear", priority: "RESTRICTED" },
+    { category: "SYMBOL", requirement: "Ceremonial headdress ornament excluded from daily wear", priority: "RESTRICTED" },
   ];
   for (const r of reqs) {
     await db.insert(designRequirements).values({ designBriefId: brief.id, ...r, source: "DEMO" });
   }
 
   for (const [code, role, notes] of [
-    ["CE-SAMPLE-001", "PRIMARY", "Demo basket: mandatory textile"],
-    ["CE-SAMPLE-002", "REFERENCE", "Demo basket: mandatory motif"],
+    ["CE-DEMO-001", "PRIMARY", "Demo basket: mandatory ikat textile"],
+    ["CE-DEMO-002", "REFERENCE", "Demo basket: mandatory fern-spine motif"],
   ] as const) {
     await db.insert(projectCulturalElements).values({
       projectId: project.id,

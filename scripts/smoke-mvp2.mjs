@@ -47,13 +47,13 @@ check("designer register", reg.status === 201 && D.length > 0, `got ${reg.status
 
 // --- cultures ---
 const cultures = await call("GET", "/api/cultures", null, A);
-const cultureA = cultures.json?.data?.find((c) => c.name === "SAMPLE Culture A");
-check("cultures list has sample", cultures.status === 200 && !!cultureA, `count=${cultures.json?.data?.length}`);
-const cultureB = cultures.json?.data?.find((c) => c.name === "SAMPLE Culture B");
+const cultureA = cultures.json?.data?.find((c) => c.name === "Amihan Highland Weavers");
+check("cultures list has demo culture", cultures.status === 200 && !!cultureA, `count=${cultures.json?.data?.length}`);
+const cultureB = cultures.json?.data?.find((c) => c.name === "Sinag Coastal Weavers");
 
 // --- elements search ---
-const all = await call("GET", "/api/cultural-elements?q=Sample", null, A);
-check("search finds samples", all.status === 200 && all.json?.data?.length >= 7, `got ${all.json?.data?.length}`);
+const all = await call("GET", "/api/cultural-elements", null, A);
+check("search finds demo elements", all.status === 200 && all.json?.data?.length >= 7, `got ${all.json?.data?.length}`);
 
 const verified = await call("GET", "/api/cultural-elements?verifiedOnly=1", null, A);
 check(

@@ -1,5 +1,9 @@
-// Sample materials for MVP 5 demos. Run: pnpm tsx scripts/seed-sample-materials.ts
-// SAMPLE-prefixed placeholders — replace with real supplier data before use.
+// Demo materials for MVP 5 costing walkthroughs.
+// Run: pnpm exec tsx scripts/seed-sample-materials.ts
+//
+// THESIS INTEGRITY: fictional supplier prices for demonstration only. The
+// suppliers do not exist and the prices are invented — replace with real
+// supplier data before any actual costing.
 import "dotenv/config";
 import { eq } from "drizzle-orm";
 import { db } from "../src/lib/db/client";
@@ -7,11 +11,11 @@ import { materialPrices, materials } from "../src/lib/db/schema";
 
 async function main() {
   const existing = await db.query.materials.findFirst({
-    where: eq(materials.materialCode, "MAT-SAMPLE-001"),
+    where: eq(materials.materialCode, "MAT-DEMO-001"),
     columns: { id: true },
   });
   if (existing) {
-    console.log("Sample materials already present — skipping.");
+    console.log("Demo materials already present — skipping.");
     process.exit(0);
   }
 
@@ -39,51 +43,53 @@ async function main() {
   }
 
   await material(
-    "MAT-SAMPLE-001",
+    "MAT-DEMO-001",
     {
-      name: "Sample Woven Textile",
+      name: "Handwoven Ikat Panel",
       category: "TEXTILE",
-      description: "Placeholder textile for costing demos.",
+      description: "Handwoven warp-ikat fabric panel for ceremonial garments (demo).",
       unit: "meter",
       availabilityStatus: "AVAILABLE",
-      supplier: "Sample Supplier A",
-      culturalAssociation: "Placeholder association note.",
+      supplier: "Amihan Weaving Cooperative",
+      culturalAssociation: "Produced by the fictional Amihan Highland Weavers (demo).",
     },
     [
-      { price: "820", supplier: "Sample Supplier A", daysAgo: 90 },
-      { price: "850", supplier: "Sample Supplier A", daysAgo: 5 },
+      { price: "820", supplier: "Amihan Weaving Cooperative", daysAgo: 90 },
+      { price: "850", supplier: "Amihan Weaving Cooperative", daysAgo: 5 },
     ],
   );
 
   await material(
-    "MAT-SAMPLE-002",
+    "MAT-DEMO-002",
     {
-      name: "Sample Cotton",
+      name: "Bamboo Cotton Blend",
       category: "FABRIC",
+      description: "Soft bamboo-cotton blend for linings and underlayers (demo).",
       unit: "meter",
       availabilityStatus: "AVAILABLE",
-      supplier: "Sample Supplier B",
+      supplier: "Sinag Textile Supply",
     },
-    [{ price: "320", supplier: "Sample Supplier B", source: "USER_ENTERED", daysAgo: 10 }],
+    [{ price: "320", supplier: "Sinag Textile Supply", source: "USER_ENTERED", daysAgo: 10 }],
   );
 
   await material(
-    "MAT-SAMPLE-003",
+    "MAT-DEMO-003",
     {
-      name: "Sample Shell Beads",
+      name: "Mother-of-Pearl Beads",
       category: "BEADS",
+      description: "Polished shell beads for ceremonial ornament work (demo).",
       unit: "piece",
       availabilityStatus: "LIMITED",
-      supplier: "Sample Supplier C",
+      supplier: "Coastal Crafts Guild",
     },
-    [{ price: "45", supplier: "Sample Supplier C", daysAgo: 20 }],
+    [{ price: "45", supplier: "Coastal Crafts Guild", daysAgo: 20 }],
   );
 
   // Deliberately priceless: exercises the INCOMPLETE path.
   await material(
-    "MAT-SAMPLE-004",
+    "MAT-DEMO-004",
     {
-      name: "Sample Priceless Heirloom Cloth",
+      name: "Heirloom Tapestry Cloth",
       category: "TEXTILE",
       description: "No price on purpose — costing must report INCOMPLETE, not invent one.",
       unit: "meter",
@@ -92,7 +98,7 @@ async function main() {
     [],
   );
 
-  console.log("Seeded 4 SAMPLE materials (one with price history, one priceless).");
+  console.log("Seeded 4 demo materials (one with price history, one priceless).");
   process.exit(0);
 }
 

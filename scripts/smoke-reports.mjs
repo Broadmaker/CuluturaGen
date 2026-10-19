@@ -43,8 +43,8 @@ check("project created", proj.status === 201 && !!pid, `got ${proj.status}`);
 await call("POST", `/api/projects/${pid}/briefs`, { occasion: "Festival", silhouette: "Fitted" }, A);
 await call("POST", `/api/projects/${pid}/body`, { heightCm: 165, waistCm: 76 }, A);
 
-const els = await call("GET", "/api/cultural-elements?q=Sample", null, A);
-const textile = els.json?.data?.find((e) => e.name === "Sample Textile A");
+const els = await call("GET", "/api/cultural-elements", null, A);
+const textile = els.json?.data?.find((e) => e.name === "Ikat Ceremonial Wrap");
 await call("POST", `/api/projects/${pid}/basket`, { culturalElementId: textile.id, role: "REQUIRED" }, A);
 
 const gen = await call("POST", "/api/designs/generate", { projectId: pid }, A);
@@ -52,8 +52,8 @@ const designId = gen.json?.data?.design?.id;
 const versionId = gen.json?.data?.version?.id;
 check("design generated", gen.status === 201 && !!versionId, `got ${gen.status}`);
 
-const lib = await call("GET", "/api/materials?q=Sample", null, A);
-const mat = lib.json?.data?.find((m) => m.materialCode === "MAT-SAMPLE-001");
+const lib = await call("GET", "/api/materials", null, A);
+const mat = lib.json?.data?.find((m) => m.materialCode === "MAT-DEMO-001");
 await call("POST", `/api/versions/${versionId}/materials`, { materialId: mat.id, quantity: 2 }, A);
 await call("POST", `/api/versions/${versionId}/cost/calculate`, {}, A);
 await call("POST", `/api/designs/${designId}/evaluate`, {}, A);

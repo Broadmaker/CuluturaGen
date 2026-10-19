@@ -5,7 +5,8 @@
   "description": "Human-AI Collaborative Cultural Attire Design Platform — Master's Thesis Prototype",
   "packageManager": "pnpm@10.34.3",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
+    "dev:webpack": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -15,6 +16,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx scripts/seed.ts",
+    "db:seed:demo-data": "tsx scripts/seed-sample-culture.ts && tsx scripts/seed-sample-materials.ts && tsx scripts/seed-demo.ts",
+    "db:reset:demo": "tsx scripts/reset-demo-data.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {

@@ -52,12 +52,12 @@ await call("POST", `/api/projects/${pid}/body`, { heightCm: 165, waistCm: 76 }, 
 
 // Basket: verified textile WITH source (passes), sourceless motif (flagged),
 // restricted ornament unapproved (CRITICAL).
-const els = await call("GET", "/api/cultural-elements?q=Sample", null, A);
+const els = await call("GET", "/api/cultural-elements", null, A);
 const byName = (n) => els.json?.data?.find((e) => e.name === n);
-const textile = byName("Sample Textile A");
-const motif = byName("Sample Motif A1");
-const garment = byName("Sample Festival Garment"); // UNDER_REVIEW + sourceless
-const ornament = byName("Sample Ceremonial Ornament"); // RESTRICTED
+const textile = byName("Ikat Ceremonial Wrap");
+const motif = byName("Fern-Spine Motif");
+const garment = byName("Festival Barong"); // UNDER_REVIEW + sourceless
+const ornament = byName("Ancestral Headdress Ornament"); // RESTRICTED
 for (const el of [textile, motif, garment, ornament]) {
   await call("POST", `/api/projects/${pid}/basket`, { culturalElementId: el.id, role: "REFERENCE" }, A);
 }
@@ -68,8 +68,8 @@ const versionId = gen.json?.data?.version?.id;
 check("design generated", gen.status === 201 && !!versionId, `got ${gen.status}`);
 
 // Link a LIMITED material without calculating cost → material + cost findings.
-const lib = await call("GET", "/api/materials?q=Sample", null, A);
-const beads = lib.json?.data?.find((m) => m.materialCode === "MAT-SAMPLE-003");
+const lib = await call("GET", "/api/materials", null, A);
+const beads = lib.json?.data?.find((m) => m.materialCode === "MAT-DEMO-003");
 await call("POST", `/api/versions/${versionId}/materials`, { materialId: beads.id, quantity: 10, unit: "piece" }, A);
 
 // --- evaluate ---
@@ -97,7 +97,7 @@ check(
 );
 
 // --- designer overrides the guardrail: v2 includes the restricted ornament ---
-const regen = await call("POST", `/api/designs/${designId}/regenerate`, { instruction: "Use Sample Ceremonial Ornament as the centerpiece" }, A);
+const regen = await call("POST", `/api/designs/${designId}/regenerate`, { instruction: "Use Ancestral Headdress Ornament as the centerpiece" }, A);
 check("override regenerate v2", regen.status === 201 && regen.json?.data?.version?.versionNumber === 2, `got ${regen.status}`);
 await call("POST", `/api/designs/${designId}/evaluate`, {}, A);
 const v2state = await call("GET", `/api/designs/${designId}/evaluation`, null, A);

@@ -39,8 +39,8 @@ const proj = await call("POST", "/api/projects", { name: "Smoke Audit" }, A);
 const pid = proj.json?.data?.id;
 check("project created", proj.status === 201 && !!pid, `got ${proj.status}`);
 
-const els = await call("GET", "/api/cultural-elements?q=Sample", null, A);
-const textile = els.json?.data?.find((e) => e.name === "Sample Textile A");
+const els = await call("GET", "/api/cultural-elements", null, A);
+const textile = els.json?.data?.find((e) => e.name === "Ikat Ceremonial Wrap");
 await call("POST", `/api/projects/${pid}/basket`, { culturalElementId: textile.id }, A);
 
 const gen = await call("POST", "/api/designs/generate", { projectId: pid }, A);
